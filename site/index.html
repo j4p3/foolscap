@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Foolscap Folio — a personal blog</title>
+<meta name="description" content="A personal blog set in Foolscap, a design system in the manner of an aged newspaper and an antique engineering schematic." />
+<link rel="stylesheet" href="assets/built/app.css" />
+<script src="assets/vendor/d3.min.js"></script>
+<script src="assets/vendor/plot.umd.min.js"></script>
+<script src="assets/foolscap-plot.js"></script>
+</head>
+<body class="bg-surface-page text-text-primary font-text">
+
+<!-- top rail -->
+<div class="border-b border-border-hairline">
+  <div class="max-w-page mx-auto px-6 py-2 flex items-baseline justify-between gap-4">
+    <p class="fc-label">Vol. I · No. 4 — Monday, September 28, 2026</p>
+    <div class="flex items-center gap-3">
+      <a class="fc-label hover:text-text-primary" href="index.html">Front page</a>
+      <a class="fc-label hover:text-text-primary" href="styleguide.html">Styleguide</a>
+      <button class="fc-chip" id="themeToggle" onclick="fcToggleTheme()" aria-pressed="false">Blueprint</button>
+    </div>
+  </div>
+</div>
+
+<!-- masthead -->
+<header class="max-w-page mx-auto px-6 pt-8 pb-6 text-center">
+  <p class="fc-label mb-3">Records · Diagrams · Marginalia</p>
+  <h1 class="font-display text-masthead font-extrabold tracking-tight">The Foolscap Folio</h1>
+  <p class="fc-byline mt-3">Written &amp; set by J. P. Bonner — printed on cream stock in spruce ink</p>
+  <hr class="mt-6 mb-0 border-0 border-t-3 border-border-strong" />
+  <hr class="mt-1 border-0 border-t border-border-hairline" />
+</header>
+
+<main class="max-w-page mx-auto px-6 pb-16">
+
+  <!-- lead story -->
+  <section class="grid gap-10 lg:grid-cols-12 pt-6">
+    <article class="lg:col-span-7">
+      <p class="fc-label mb-2">Lead article · Maritime data</p>
+      <h2 class="font-display text-display font-bold tracking-tight">
+        <a href="posts/shrinking-atlantic.html" class="hover:underline decoration-1 underline-offset-4">The Shrinking Atlantic</a>
+      </h2>
+      <p class="fc-lede text-lede italic text-text-secondary mt-4">
+        In 1838 the crossing took fifteen days and a following wind. By 1952 it took
+        three and a half. A century of boiler pressure, rivet counts, and national
+        vanity, read from the record book of the Blue Riband.
+      </p>
+      <p class="fc-byline mt-5">By J. P. Bonner · 14 min read · <mark>With 3 figures &amp; 1 table</mark></p>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <a class="fc-chip" href="#">Data history</a>
+        <a class="fc-chip" href="#">Steamships</a>
+        <a class="fc-chip" href="#">Charts</a>
+      </div>
+      <a class="fc-btn fc-btn-primary fc-btn-plated mt-8" href="posts/shrinking-atlantic.html">Read the article</a>
+    </article>
+
+    <figure class="fc-figure fc-figure-framed lg:col-span-5 self-start">
+      <div id="leadChart" aria-label="Chart of Atlantic record speeds, 1838 to 1952"></div>
+      <figcaption class="fc-figcaption">
+        <span class="fc-figno">Fig. A</span>Record average speed of the westbound
+        Atlantic crossing, 1838–1952, in knots. From the article's dataset.
+      </figcaption>
+    </figure>
+  </section>
+
+  <hr class="fc-rule-double" />
+
+  <!-- index of articles -->
+  <section>
+    <div class="flex items-baseline justify-between">
+      <h3 class="font-display text-h2 font-bold tracking-tight">Index of Articles</h3>
+      <p class="fc-label">4 entries</p>
+    </div>
+
+    <div class="mt-6 grid gap-x-10 md:grid-cols-2 lg:grid-cols-3 lg:[&>article:not(:last-child)]:border-r lg:[&>article]:border-border-hairline lg:[&>article]:pr-10">
+
+      <article class="py-5 border-t border-border-hairline">
+        <p class="fc-label mb-2">No. 4 · Sep 28, 2026</p>
+        <h4 class="font-display text-h3 font-bold">
+          <a href="posts/shrinking-atlantic.html" class="hover:underline decoration-1 underline-offset-4">The Shrinking Atlantic</a>
+        </h4>
+        <p class="text-body text-text-secondary mt-2">The Blue Riband as a dataset:
+          what a hundred years of record crossings say about engineering at full steam.</p>
+        <div class="mt-3 flex flex-wrap gap-2"><span class="fc-chip">Data history</span><span class="fc-chip">Charts</span></div>
+      </article>
+
+      <article class="py-5 border-t border-border-hairline">
+        <p class="fc-label mb-2">No. 3 · Sep 11, 2026</p>
+        <h4 class="font-display text-h3 font-bold">
+          <a href="#" class="hover:underline decoration-1 underline-offset-4">On Ruling a Page</a>
+        </h4>
+        <p class="text-body text-text-secondary mt-2">Hairline, rule, and double rule:
+          how newspapers divided attention before anyone said “information architecture.”</p>
+        <div class="mt-3 flex flex-wrap gap-2"><span class="fc-chip">Typography</span></div>
+      </article>
+
+      <article class="py-5 border-t border-border-hairline">
+        <p class="fc-label mb-2">No. 2 · Aug 30, 2026</p>
+        <h4 class="font-display text-h3 font-bold">
+          <a href="#" class="hover:underline decoration-1 underline-offset-4">The Draftsman's Alphabet</a>
+        </h4>
+        <p class="text-body text-text-secondary mt-2">Why engineering lettering was
+          uppercase, monospaced, and proud of it — and what UI labels owe the stencil.</p>
+        <div class="mt-3 flex flex-wrap gap-2"><span class="fc-chip">Lettering</span><span class="fc-chip">Schematics</span></div>
+      </article>
+
+      <article class="py-5 border-t border-border-hairline">
+        <p class="fc-label mb-2">No. 1 · Aug 14, 2026</p>
+        <h4 class="font-display text-h3 font-bold">
+          <a href="#" class="hover:underline decoration-1 underline-offset-4">A Blog, Founded</a>
+        </h4>
+        <p class="text-body text-text-secondary mt-2">A short prospectus: what this
+          publication is for, and the standing rules of its composition.</p>
+        <div class="mt-3 flex flex-wrap gap-2"><span class="fc-chip">Meta</span></div>
+      </article>
+
+      <!-- notices column -->
+      <aside class="py-5 border-t border-border-hairline md:col-span-2 lg:col-span-2">
+        <p class="fc-label mb-3">Notices</p>
+        <div class="grid gap-3 md:grid-cols-2">
+          <div class="fc-note fc-note-info">The styleguide has been reprinted with the
+            complete token taxonomy and specimen figures.</div>
+          <div class="fc-note fc-note-success">All text inks now pass WCAG AA against
+            every sanctioned ground; body ink passes AAA.</div>
+        </div>
+        <div class="fc-pane fc-pane-inverse mt-3">
+          <div class="fc-pane-body flex flex-wrap items-baseline justify-between gap-4">
+            <div>
+              <p class="fc-label">Blueprint edition</p>
+              <p class="text-body mt-1">This publication is also issued in a dark
+                “blueprint” impression. Toggle the mode from the top rail.</p>
+            </div>
+            <button class="fc-btn fc-btn-secondary" style="color: var(--fc-component-pane-inverse-text); border-color: var(--fc-component-pane-inverse-text);" onclick="fcToggleTheme()">Switch mode</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<!-- colophon -->
+<footer class="border-t-3 border-border-strong">
+  <div class="max-w-page mx-auto px-6 py-6 bg-surface-aged">
+    <div class="flex flex-wrap items-baseline justify-between gap-4">
+      <p class="fc-label">The Foolscap Folio · est. MMXXVI</p>
+      <p class="text-small text-text-muted">Set in Playfair Display, Lora &amp; IBM Plex Mono ·
+        Composed with the <a class="underline underline-offset-2" href="styleguide.html">Foolscap design system</a> · No pixels were embossed.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // lead figure: record speed sparkline
+  const riband = [
+    { year: 1838, kn: 8.66 }, { year: 1843, kn: 10.7 }, { year: 1856, kn: 13.11 },
+    { year: 1863, kn: 14.46 }, { year: 1876, kn: 15.09 }, { year: 1882, kn: 16.07 },
+    { year: 1885, kn: 18.73 }, { year: 1889, kn: 20.01 }, { year: 1893, kn: 21.81 },
+    { year: 1898, kn: 22.29 }, { year: 1900, kn: 23.02 }, { year: 1907, kn: 23.99 },
+    { year: 1909, kn: 26.06 }, { year: 1929, kn: 27.83 }, { year: 1933, kn: 28.51 },
+    { year: 1935, kn: 29.98 }, { year: 1938, kn: 30.99 }, { year: 1952, kn: 34.51 },
+  ];
+  fcChart(document.getElementById("leadChart"), (t) => ({
+    height: 260,
+    marginLeft: 36,
+    x: { label: null, tickFormat: "d" },
+    y: { label: "knots", domain: [5, 36] },
+    marks: [
+      Plot.line(riband, { x: "year", y: "kn", stroke: t.ink, strokeWidth: 1.5, curve: "step-after" }),
+      Plot.dot(riband, { x: "year", y: "kn", fill: t.ink, r: 2 }),
+    ],
+  }));
+
+  // theme toggle label state
+  const tbtn = document.getElementById("themeToggle");
+  const syncBtn = () => tbtn.setAttribute("aria-pressed", document.documentElement.dataset.theme === "dark");
+  document.addEventListener("fc:theme", syncBtn); syncBtn();
+</script>
+</body>
+</html>

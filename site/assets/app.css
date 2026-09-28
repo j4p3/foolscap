@@ -1,0 +1,20 @@
+/* Foolscap site build entry. Build:
+   npx @tailwindcss/cli -i site/assets/app.css -o site/assets/built/app.css --minify */
+@import "tailwindcss";
+@import "../../dist/foolscap.vars.css";
+@import "../../dist/foolscap.theme.css";
+@import "./fonts.css";
+@import "./foolscap.css";
+
+@layer base {
+  html {
+    background-color: var(--fc-color-surface-page);
+    color: var(--fc-color-text-primary);
+    font-family: var(--fc-font-family-text);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: var(--fc-color-emphasis-highlight);
+    color: var(--fc-color-emphasis-highlight-ink);
+  }
+}

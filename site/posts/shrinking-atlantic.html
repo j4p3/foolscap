@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Shrinking Atlantic — The Foolscap Folio</title>
+<meta name="description" content="A century of Blue Riband record crossings, read as a dataset." />
+<link rel="stylesheet" href="../assets/built/app.css" />
+<script src="../assets/vendor/d3.min.js"></script>
+<script src="../assets/vendor/plot.umd.min.js"></script>
+<script src="../assets/foolscap-plot.js"></script>
+</head>
+<body class="bg-surface-page text-text-primary font-text">
+
+<div class="border-b border-border-hairline">
+  <div class="max-w-page mx-auto px-6 py-2 flex items-baseline justify-between gap-4">
+    <a class="fc-label hover:text-text-primary" href="../index.html">← The Foolscap Folio</a>
+    <div class="flex items-center gap-3">
+      <a class="fc-label hover:text-text-primary" href="../styleguide.html">Styleguide</a>
+      <button class="fc-chip" onclick="fcToggleTheme()">Blueprint</button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-page mx-auto px-6 pb-16">
+
+  <!-- headline block -->
+  <header class="max-w-wide mx-auto pt-10 pb-8 border-b-3 border-border-strong">
+    <p class="fc-label mb-3">No. 4 · Maritime data · 14 min read</p>
+    <h1 class="font-display text-h1 md:text-display font-bold tracking-tight max-w-[20ch]">The Shrinking Atlantic</h1>
+    <p class="fc-lede text-lede italic text-text-secondary mt-5 max-w-prose">
+      In 1838 the crossing took fifteen days and a following wind. By 1952 it took three
+      and a half. A century of boiler pressure, rivet counts, and national vanity, read
+      from the record book of the Blue Riband.
+    </p>
+    <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <p class="fc-byline">By J. P. Bonner · Monday, September 28, 2026</p>
+      <div class="flex gap-2">
+        <span class="fc-chip">Data history</span>
+        <span class="fc-chip">Steamships</span>
+        <span class="fc-chip fc-chip-selected">Charts</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-wide mx-auto grid gap-10 lg:grid-cols-12 pt-8">
+
+    <!-- margin apparatus -->
+    <aside class="lg:col-span-3 lg:order-2 space-y-6">
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">In this article</span></div>
+        <div class="fc-pane-body text-small space-y-2">
+          <p><a class="underline underline-offset-2" href="#speed">I. The record as a curve</a></p>
+          <p><a class="underline underline-offset-2" href="#days">II. Days, not knots</a></p>
+          <p><a class="underline underline-offset-2" href="#ledger">III. The ledger</a></p>
+          <p><a class="underline underline-offset-2" href="#power">IV. The price of a knot</a></p>
+        </div>
+      </div>
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">At a glance</span></div>
+        <div class="fc-pane-body">
+          <p class="fc-label">Fastest crossing, 1952</p>
+          <p class="fc-stat">3<span class="text-h3">d</span> 10<span class="text-h3">h</span></p>
+          <hr class="fc-rule my-3" />
+          <p class="fc-label">Speed gained, 1838–1952</p>
+          <p class="fc-stat">+26<span class="text-h3">kn</span></p>
+          <hr class="fc-rule my-3" />
+          <p class="text-small text-text-muted">SS <em>United States</em>, eastbound,
+            still holds the record for a passenger liner.</p>
+        </div>
+      </div>
+      <div class="fc-note fc-note-warning text-small">Sources vary by up to half a knot
+        for pre-1870 records; figures follow the Riband ledger convention.</div>
+    </aside>
+
+    <!-- article body -->
+    <article class="fc-prose lg:col-span-9 lg:order-1">
+      <p><span class="float-left font-display text-display font-bold leading-[0.8] pr-2 pt-1">T</span>he
+        North Atlantic is the best-documented stretch of water on Earth, and for a
+        hundred years its passenger record — the <mark>Blue Riband</mark> — was the
+        most public benchmark in engineering. Every record crossing left a number:
+        departure mark, arrival mark, distance run, average speed. Which means the
+        whole contest can be read back today as a dataset,<sup>1</sup> and the dataset
+        reads like a stress test of the nineteenth century itself.</p>
+
+      <p>The rules were informal but stable: the record belonged to the ship with the
+        highest <em>average speed</em> over the full crossing, westbound against the
+        prevailing weather being the harder and more honored direction. No committee
+        awarded it at first; the newspapers simply kept score. It is the earliest case
+        I know of a leaderboard driving capital expenditure.</p>
+
+      <h2 id="speed">I. The record as a curve</h2>
+
+      <p>Plotted, the record is a staircase with two landings. Speed climbs steadily
+        from the paddle-wheel era through the 1880s, stalls around the turn of the
+        century, then jumps twice — once when turbines replace reciprocating engines,
+        and once more when the state, rather than the shipping line, starts paying
+        the coal bill.</p>
+
+      <figure class="fc-figure fc-figure-framed my-8 -mx-0 lg:-mx-6">
+        <div id="figSpeed" aria-label="Line chart of record crossing speed by year, annotated by propulsion era"></div>
+        <figcaption class="fc-figcaption">
+          <span class="fc-figno">Fig. 1</span>Blue Riband record average speed,
+          westbound, 1838–1952. Steps mark record-breaking crossings; series color
+          marks propulsion: paddle, single screw, twin screw, turbine.
+        </figcaption>
+      </figure>
+
+      <p>Three regimes are visible without any regression. The paddle era gains about
+        one knot per decade — incremental boiler work. The screw era doubles that
+        rate. The turbine era is discontinuous: <em>Mauretania</em> takes the record
+        from 23 to 26 knots in two years and holds it for <em>twenty</em>, the longest
+        reign in the ledger.<sup>2</sup></p>
+
+      <blockquote>The Atlantic was not crossed faster because passengers demanded it.
+        It was crossed faster because two empires and four shipping lines could not
+        afford to be second.</blockquote>
+
+      <h2 id="days">II. Days, not knots</h2>
+
+      <p>Knots flatter the engineers; days tell the passengers' story. Converting each
+        record to an equivalent crossing time collapses the whole century into one
+        curve of diminishing returns:</p>
+
+      <figure class="fc-figure fc-figure-framed my-8 -mx-0 lg:-mx-6">
+        <div id="figDays" aria-label="Area chart of equivalent crossing duration in days by year"></div>
+        <figcaption class="fc-figcaption">
+          <span class="fc-figno">Fig. 2</span>Equivalent westbound crossing duration,
+          in days, computed at record speed over a standard 3,000-nautical-mile
+          passage. The hatched band marks the sub-five-day era.
+        </figcaption>
+      </figure>
+
+      <p>The first ten knots bought eleven days; the last ten bought barely two. By
+        the 1930s the record was a matter of national prestige running far ahead of
+        commercial sense — the <em>Normandie</em> and <em>Queen Mary</em> traded the
+        Riband back and forth at operating losses their governments quietly absorbed.</p>
+
+      <h2 id="ledger">III. The ledger</h2>
+
+      <p>The record book itself, abridged to the principal holders:</p>
+
+      <figure class="fc-figure my-8 -mx-0 lg:-mx-6">
+        <div class="overflow-x-auto">
+        <table class="fc-table">
+          <thead>
+            <tr><th>Year</th><th>Vessel</th><th>Line</th><th>Flag</th>
+                <th class="text-right">Speed, kn</th><th class="text-right">Days</th><th>Propulsion</th></tr>
+          </thead>
+          <tbody>
+            <tr><td data-num>1838</td><td><em>Great Western</em></td><td>Great Western</td><td>GB</td><td data-num>8.66</td><td data-num>14.4</td><td>Paddle</td></tr>
+            <tr><td data-num>1856</td><td><em>Persia</em></td><td>Cunard</td><td>GB</td><td data-num>13.11</td><td data-num>9.5</td><td>Paddle</td></tr>
+            <tr><td data-num>1863</td><td><em>Scotia</em></td><td>Cunard</td><td>GB</td><td data-num>14.46</td><td data-num>8.6</td><td>Paddle</td></tr>
+            <tr><td data-num>1882</td><td><em>Alaska</em></td><td>Guion</td><td>GB</td><td data-num>16.07</td><td data-num>7.8</td><td>Single screw</td></tr>
+            <tr><td data-num>1889</td><td><em>City of Paris</em></td><td>Inman</td><td>GB</td><td data-num>20.01</td><td data-num>6.2</td><td>Twin screw</td></tr>
+            <tr><td data-num>1898</td><td><em>Kaiser Wilhelm der Grosse</em></td><td>NDL</td><td>DE</td><td data-num>22.29</td><td data-num>5.6</td><td>Twin screw</td></tr>
+            <tr><td data-num>1909</td><td><em>Mauretania</em></td><td>Cunard</td><td>GB</td><td data-num>26.06</td><td data-num>4.8</td><td>Turbine</td></tr>
+            <tr><td data-num>1933</td><td><em>Rex</em></td><td>Italian Line</td><td>IT</td><td data-num>28.92</td><td data-num>4.3</td><td>Turbine</td></tr>
+            <tr><td data-num>1935</td><td><em>Normandie</em></td><td>CGT</td><td>FR</td><td data-num>29.98</td><td data-num>4.2</td><td>Turbo-electric</td></tr>
+            <tr><td data-num>1938</td><td><em>Queen Mary</em></td><td>Cunard-White Star</td><td>GB</td><td data-num>30.99</td><td data-num>4.0</td><td>Turbine</td></tr>
+            <tr><td data-num>1952</td><td><em>United States</em></td><td>United States Lines</td><td>US</td><td data-num>34.51</td><td data-num>3.6</td><td>Turbine</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <figcaption class="fc-figcaption">
+          <span class="fc-figno">Table 1</span>Principal Blue Riband holders,
+          westbound. Days computed over the standard passage. Abridged; intermediate
+          holders omitted.
+        </figcaption>
+      </figure>
+
+      <h2 id="power">IV. The price of a knot</h2>
+
+      <p>What the ledger hides is the exponent underneath it. Hull drag rises roughly
+        with the cube of speed, so each additional knot demanded a disproportionate
+        bonfire of horsepower — and the machinery record makes the point better than
+        any prose:</p>
+
+      <figure class="fc-figure fc-figure-framed my-8 -mx-0 lg:-mx-6">
+        <div id="figPower" aria-label="Scatter chart of installed horsepower against record speed, log scale"></div>
+        <figcaption class="fc-figcaption">
+          <span class="fc-figno">Fig. 3</span>Installed power against record speed for
+          seven holders, semi-log. The straight line on the log axis is the cube law;
+          the ships track it with unsentimental obedience.
+        </figcaption>
+      </figure>
+
+      <p>The <em>Great Western</em> made her record on 750 indicated horsepower. The
+        <em>United States</em> needed 240,000 — three hundred times the power for four
+        times the speed.<sup>3</sup> That ratio, more than any romance about the jet
+        age, is why the contest ended. The last two knots of the record cost as much
+        as the first twenty, and a Boeing 707 crossed in seven hours.</p>
+
+      <p>The Atlantic, of course, never actually shrank. It remains 3,000 miles of
+        indifferent gray water. What shrank was the tolerable distance between a
+        decision made in London and a signature needed in New York — and once that
+        distance was measured in hours, the proudest machines ever riveted became,
+        overnight, a slow way to ship champagne.</p>
+
+      <div class="fc-footnote mt-10 space-y-2">
+        <p><sup>1</sup> Ledger convention: average speed over the full passage between
+          agreed marks (Bishop Rock to Ambrose after 1900), westbound unless noted.</p>
+        <p><sup>2</sup> <em>Mauretania</em> held the westbound record from 1909 to
+          1929, surrendering it only to the purpose-built <em>Bremen</em>.</p>
+        <p><sup>3</sup> Figures are installed shaft horsepower as recorded at the
+          record attempt, not design maxima; the <em>United States</em>' full power
+          remained classified until 1977.</p>
+      </div>
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a class="fc-btn fc-btn-secondary" href="../index.html">← Front page</a>
+        <a class="fc-btn fc-btn-ghost" href="../styleguide.html">How this page is set</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="border-t-3 border-border-strong">
+  <div class="max-w-page mx-auto px-6 py-6 bg-surface-aged flex flex-wrap items-baseline justify-between gap-4">
+    <p class="fc-label">The Foolscap Folio · est. MMXXVI</p>
+    <p class="text-small text-text-muted">Set in Playfair Display, Lora &amp; IBM Plex Mono.</p>
+  </div>
+</footer>
+
+<script>
+  // dataset: record crossings with propulsion era
+  const riband = [
+    { year: 1838, kn: 8.66,  era: "Paddle" }, { year: 1843, kn: 10.7, era: "Paddle" },
+    { year: 1856, kn: 13.11, era: "Paddle" }, { year: 1863, kn: 14.46, era: "Paddle" },
+    { year: 1876, kn: 15.09, era: "Single screw" }, { year: 1882, kn: 16.07, era: "Single screw" },
+    { year: 1885, kn: 18.73, era: "Single screw" }, { year: 1889, kn: 20.01, era: "Twin screw" },
+    { year: 1893, kn: 21.81, era: "Twin screw" }, { year: 1898, kn: 22.29, era: "Twin screw" },
+    { year: 1900, kn: 23.02, era: "Twin screw" }, { year: 1907, kn: 23.99, era: "Turbine" },
+    { year: 1909, kn: 26.06, era: "Turbine" }, { year: 1929, kn: 27.83, era: "Turbine" },
+    { year: 1933, kn: 28.92, era: "Turbine" }, { year: 1935, kn: 29.98, era: "Turbine" },
+    { year: 1938, kn: 30.99, era: "Turbine" }, { year: 1952, kn: 34.51, era: "Turbine" },
+  ];
+  const eras = ["Paddle", "Single screw", "Twin screw", "Turbine"];
+
+  fcChart(document.getElementById("figSpeed"), (t) => ({
+    height: 340, marginLeft: 40,
+    x: { label: "Year", tickFormat: "d" },
+    y: { label: "Average speed (kn)", domain: [5, 36] },
+    color: { domain: eras, range: [t.series[0], t.series[2], t.series[1], t.series[3]], legend: true },
+    marks: [
+      Plot.line(riband, { x: "year", y: "kn", stroke: t.grid, strokeWidth: 1, curve: "step-after" }),
+      Plot.dot(riband, { x: "year", y: "kn", fill: "era", r: 3.5 }),
+      Plot.text(
+        [{ year: 1909, kn: 26.06, label: "Mauretania — held 20 yrs" }],
+        { x: "year", y: "kn", text: "label", dy: -12, dx: -8, fill: t.axis, fontSize: 11, textAnchor: "end" }
+      ),
+    ],
+  }));
+
+  const days = riband.map((d) => ({ ...d, days: 3000 / d.kn / 24 }));
+  fcChart(document.getElementById("figDays"), (t) => ({
+    height: 300, marginLeft: 40,
+    x: { label: "Year", tickFormat: "d" },
+    y: { label: "Crossing (days)", domain: [0, 16] },
+    marks: [
+      Plot.areaY(days, { x: "year", y: "days", fill: t.series[0], fillOpacity: 0.15, curve: "step-after" }),
+      Plot.line(days, { x: "year", y: "days", stroke: t.ink, strokeWidth: 1.5, curve: "step-after" }),
+      Plot.ruleY([5], { stroke: t.series[1], strokeDasharray: "4,3" }),
+      Plot.text([{ x: 1848, y: 5 }], { x: "x", y: "y", text: () => "five-day line", dy: -8, fill: t.series[1], fontSize: 11 }),
+    ],
+  }));
+
+  const power = [
+    { ship: "Great Western", kn: 8.66, hp: 750 },
+    { ship: "Persia", kn: 13.11, hp: 3600 },
+    { ship: "Alaska", kn: 16.07, hp: 11000 },
+    { ship: "City of Paris", kn: 20.01, hp: 20000 },
+    { ship: "Mauretania", kn: 26.06, hp: 76000 },
+    { ship: "Normandie", kn: 29.98, hp: 160000 },
+    { ship: "United States", kn: 34.51, hp: 240000 },
+  ];
+  // cube-law reference through Mauretania
+  const k = 76000 / Math.pow(26.06, 3);
+  const cube = d3.range(8, 36, 0.5).map((v) => ({ kn: v, hp: k * v * v * v }));
+  fcChart(document.getElementById("figPower"), (t) => ({
+    height: 320, marginLeft: 52,
+    x: { label: "Record speed (kn)", domain: [7, 37] },
+    y: { label: "Installed power (hp)", type: "log", domain: [500, 400000] },
+    marks: [
+      Plot.line(cube, { x: "kn", y: "hp", stroke: t.series[1], strokeWidth: 1, strokeDasharray: "5,4" }),
+      Plot.dot(power, { x: "kn", y: "hp", fill: t.ink, r: 4 }),
+      Plot.text(power, { x: "kn", y: "hp", text: "ship", dy: -10, fill: t.axis, fontSize: 11 }),
+      Plot.text([{ kn: 33, hp: k * 33 ** 3 }], { x: "kn", y: "hp", text: () => "P ∝ v³", dy: 14, dx: -10, fill: t.series[1], fontSize: 12 }),
+    ],
+  }));
+</script>
+</body>
+</html>

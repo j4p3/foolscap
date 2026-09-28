@@ -1,0 +1,385 @@
+{
+  "$description": "Foolscap design tokens — W3C DTCG format. An aged-newspaper / antique-engineering-schematic system: dark blue-green and gray serif text on creamy paper. Three tiers following Nathan Curtis's naming model: PRIMITIVE tokens (literal ramps, e.g. color.spruce.600), SEMANTIC tokens (purpose-named aliases, e.g. color.action.primary), and COMPONENT tokens (e.g. component.button.primary.background). Namespace when flattened to CSS custom properties: --fc-*. Dark mode ('blueprint') overrides live in $extensions['fc.modes'].dark.",
+
+  "color": {
+    "$type": "color",
+
+    "cream": {
+      "$description": "PRIMITIVE. The paper. Aged creamy stock, light to deep foxing.",
+      "50":  { "$value": "#FCF9F1" },
+      "100": { "$value": "#F6F0E1" },
+      "200": { "$value": "#EFE6D0" },
+      "300": { "$value": "#E3D6B8" },
+      "400": { "$value": "#D3C098" },
+      "500": { "$value": "#BFA878" }
+    },
+
+    "spruce": {
+      "$description": "PRIMITIVE. The ink. Dark blue-green, the system's primary hue.",
+      "50":  { "$value": "#EBF0EE" },
+      "100": { "$value": "#D8E2DF" },
+      "200": { "$value": "#B3C6C2" },
+      "300": { "$value": "#8CA8A3" },
+      "400": { "$value": "#628680" },
+      "500": { "$value": "#476E67" },
+      "600": { "$value": "#345852" },
+      "700": { "$value": "#26453F" },
+      "800": { "$value": "#1B3531" },
+      "900": { "$value": "#122622" },
+      "950": { "$value": "#0B1A17" }
+    },
+
+    "gray": {
+      "$description": "PRIMITIVE. Cool slate gray, the secondary text ink.",
+      "50":  { "$value": "#F0EFEB" },
+      "100": { "$value": "#E2E1DB" },
+      "200": { "$value": "#C8C7BF" },
+      "300": { "$value": "#ABAAA1" },
+      "400": { "$value": "#8C8C84" },
+      "500": { "$value": "#65665F" },
+      "600": { "$value": "#575850" },
+      "700": { "$value": "#44453E" },
+      "800": { "$value": "#32332E" },
+      "900": { "$value": "#22231F" }
+    },
+
+    "prussian": {
+      "$description": "PRIMITIVE. Engineering blue; ground of the dark 'blueprint' mode.",
+      "100": { "$value": "#D6E1E7" },
+      "300": { "$value": "#8FAAB8" },
+      "500": { "$value": "#3E6C82" },
+      "600": { "$value": "#2F576B" },
+      "700": { "$value": "#234453" },
+      "800": { "$value": "#17303C" },
+      "900": { "$value": "#0E212B" },
+      "950": { "$value": "#081720" }
+    },
+
+    "ochre": {
+      "$description": "PRIMITIVE. Highlighter and aged gilt.",
+      "100": { "$value": "#F7ECC7" },
+      "200": { "$value": "#F1DF9F" },
+      "300": { "$value": "#EACF74" },
+      "400": { "$value": "#DDBB4E" },
+      "500": { "$value": "#C49F33" },
+      "600": { "$value": "#9F7E26" },
+      "700": { "$value": "#775D1C" }
+    },
+
+    "rust": {
+      "$description": "PRIMITIVE. Stamp red / oxide. Destructive and danger.",
+      "100": { "$value": "#F2DDD3" },
+      "300": { "$value": "#D9A183" },
+      "500": { "$value": "#B26545" },
+      "600": { "$value": "#97482B" },
+      "700": { "$value": "#7A3820" },
+      "800": { "$value": "#5C2A18" }
+    },
+
+    "olive": {
+      "$description": "PRIMITIVE. Drafting-table green. Success and approval.",
+      "100": { "$value": "#E7E8D2" },
+      "300": { "$value": "#BFC496" },
+      "500": { "$value": "#7C8449" },
+      "600": { "$value": "#5F6836" },
+      "700": { "$value": "#495028" }
+    },
+
+    "surface": {
+      "$description": "SEMANTIC. Grounds and planes.",
+      "page":    { "$value": "{color.cream.100}", "$description": "Default page ground.", "$extensions": { "fc.modes": { "dark": "{color.prussian.950}" } } },
+      "raised":  { "$value": "{color.cream.50}",  "$description": "Panes, cards, anything sitting on the page.", "$extensions": { "fc.modes": { "dark": "{color.prussian.900}" } } },
+      "sunken":  { "$value": "{color.cream.200}", "$description": "Wells, table stripes, inset regions.", "$extensions": { "fc.modes": { "dark": "{color.prussian.800}" } } },
+      "aged":    { "$value": "{color.cream.300}", "$description": "Deeply aged panel; folio edges, colophons.", "$extensions": { "fc.modes": { "dark": "{color.prussian.700}" } } },
+      "inverse": { "$value": "{color.spruce.900}", "$description": "Ink-ground plate; inverse panes.", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } }
+    },
+
+    "text": {
+      "$description": "SEMANTIC. Inks.",
+      "primary":   { "$value": "{color.spruce.800}", "$description": "Body ink. Dark blue-green.", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } },
+      "secondary": { "$value": "{color.gray.600}", "$description": "Secondary gray ink: decks, bylines, supporting prose.", "$extensions": { "fc.modes": { "dark": "{color.gray.200}" } } },
+      "muted":     { "$value": "{color.gray.500}", "$description": "Captions, footnotes, folio lines.", "$extensions": { "fc.modes": { "dark": "{color.gray.300}" } } },
+      "faint":     { "$value": "{color.gray.400}", "$description": "Disabled text, watermarks. Decorative only below AA.", "$extensions": { "fc.modes": { "dark": "{color.gray.400}" } } },
+      "inverse":   { "$value": "{color.cream.100}", "$description": "Text on inverse/ink surfaces.", "$extensions": { "fc.modes": { "dark": "{color.spruce.900}" } } },
+      "link":      { "$value": "{color.spruce.600}", "$extensions": { "fc.modes": { "dark": "{color.spruce.300}" } } },
+      "link-hover": { "$value": "{color.spruce.800}", "$extensions": { "fc.modes": { "dark": "{color.spruce.200}" } } }
+    },
+
+    "action": {
+      "$description": "SEMANTIC. Interactive intent.",
+      "primary":        { "$value": "{color.spruce.700}", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } },
+      "primary-hover":  { "$value": "{color.spruce.900}", "$extensions": { "fc.modes": { "dark": "{color.cream.50}" } } },
+      "on-primary":     { "$value": "{color.cream.100}", "$extensions": { "fc.modes": { "dark": "{color.prussian.950}" } } },
+      "secondary":      { "$value": "{color.spruce.800}", "$description": "Outline-button ink and border.", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } },
+      "destructive":       { "$value": "{color.rust.600}", "$extensions": { "fc.modes": { "dark": "{color.rust.300}" } } },
+      "destructive-hover": { "$value": "{color.rust.800}", "$extensions": { "fc.modes": { "dark": "{color.rust.100}" } } },
+      "on-destructive":    { "$value": "{color.cream.50}", "$extensions": { "fc.modes": { "dark": "{color.prussian.950}" } } }
+    },
+
+    "border": {
+      "$description": "SEMANTIC. Rules and hairlines.",
+      "hairline": { "$value": "#C9BEA6", "$description": "Default 1px rule on paper (reads as ink at ~30%).", "$extensions": { "fc.modes": { "dark": "#2C4450" } } },
+      "mid":      { "$value": "{color.gray.400}", "$extensions": { "fc.modes": { "dark": "{color.gray.500}" } } },
+      "strong":   { "$value": "{color.spruce.800}", "$description": "Emphatic rules: mastheads, pane frames, buttons.", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } },
+      "focus":    { "$value": "{color.ochre.500}", "$description": "Focus ring.", "$extensions": { "fc.modes": { "dark": "{color.ochre.300}" } } }
+    },
+
+    "emphasis": {
+      "$description": "SEMANTIC. The offset-highlighter treatment — the system's single strong-emphasis device.",
+      "highlight":     { "$value": "{color.ochre.300}", "$extensions": { "fc.modes": { "dark": "{color.ochre.500}" } } },
+      "highlight-ink": { "$value": "{color.spruce.900}", "$description": "Ink over a highlight swipe.", "$extensions": { "fc.modes": { "dark": "{color.prussian.950}" } } },
+      "plate":         { "$value": "{color.ochre.400}", "$description": "Offset plate backing for block-level emphasis.", "$extensions": { "fc.modes": { "dark": "{color.ochre.500}" } } }
+    },
+
+    "feedback": {
+      "$description": "SEMANTIC. Status inks and their tints.",
+      "info":            { "$value": "{color.prussian.600}", "$extensions": { "fc.modes": { "dark": "{color.prussian.300}" } } },
+      "info-surface":    { "$value": "{color.prussian.100}", "$extensions": { "fc.modes": { "dark": "{color.prussian.800}" } } },
+      "success":         { "$value": "{color.olive.600}", "$extensions": { "fc.modes": { "dark": "{color.olive.300}" } } },
+      "success-surface": { "$value": "{color.olive.100}", "$extensions": { "fc.modes": { "dark": "#22301C" } } },
+      "warning":         { "$value": "{color.ochre.700}", "$extensions": { "fc.modes": { "dark": "{color.ochre.300}" } } },
+      "warning-surface": { "$value": "{color.ochre.100}", "$extensions": { "fc.modes": { "dark": "#2E2712" } } },
+      "danger":          { "$value": "{color.rust.600}", "$extensions": { "fc.modes": { "dark": "{color.rust.300}" } } },
+      "danger-surface":  { "$value": "{color.rust.100}", "$extensions": { "fc.modes": { "dark": "#331B12" } } }
+    },
+
+    "chart": {
+      "$description": "SEMANTIC. Figure inks: a muted engineering-ink categorical ramp plus chart furniture.",
+      "1": { "$value": "{color.spruce.600}", "$extensions": { "fc.modes": { "dark": "{color.spruce.300}" } } },
+      "2": { "$value": "{color.rust.500}", "$extensions": { "fc.modes": { "dark": "{color.rust.300}" } } },
+      "3": { "$value": "{color.prussian.500}", "$extensions": { "fc.modes": { "dark": "{color.prussian.300}" } } },
+      "4": { "$value": "{color.ochre.500}", "$extensions": { "fc.modes": { "dark": "{color.ochre.300}" } } },
+      "5": { "$value": "{color.olive.500}", "$extensions": { "fc.modes": { "dark": "{color.olive.300}" } } },
+      "6": { "$value": "{color.gray.500}", "$extensions": { "fc.modes": { "dark": "{color.gray.300}" } } },
+      "grid": { "$value": "#D9CEB4", "$description": "Graph-paper grid lines.", "$extensions": { "fc.modes": { "dark": "#1D3641" } } },
+      "axis": { "$value": "{color.gray.600}", "$extensions": { "fc.modes": { "dark": "{color.gray.300}" } } },
+      "ink":  { "$value": "{color.spruce.800}", "$description": "Default mark ink for single-series figures.", "$extensions": { "fc.modes": { "dark": "{color.cream.100}" } } }
+    }
+  },
+
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "$description": "PRIMITIVE. Three faces only.",
+      "display": { "$value": ["Playfair Display", "Georgia", "serif"], "$description": "Mastheads, headlines. High-contrast didone." },
+      "text":    { "$value": ["Lora", "Georgia", "serif"], "$description": "Body prose and UI text." },
+      "data":    { "$value": ["IBM Plex Mono", "ui-monospace", "monospace"], "$description": "Labels, chips, buttons, axes, tables of figures — the schematic voice." }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "$description": "PRIMITIVE.",
+      "regular":  { "$value": 400 },
+      "medium":   { "$value": 500 },
+      "semibold": { "$value": 600 },
+      "bold":     { "$value": 700 },
+      "black":    { "$value": 800, "$description": "Playfair Display only; mastheads." }
+    },
+    "size": {
+      "$type": "dimension",
+      "$description": "PRIMITIVE. Type scale (rem; 16px root). Ratio ≈ 1.2 with editorial jumps at the top.",
+      "caption":  { "$value": "0.75rem" },
+      "small":    { "$value": "0.875rem" },
+      "body":     { "$value": "1rem" },
+      "prose":    { "$value": "1.0625rem", "$description": "Long-form article body." },
+      "lede":     { "$value": "1.1875rem" },
+      "h4":       { "$value": "1.3125rem" },
+      "h3":       { "$value": "1.5rem" },
+      "h2":       { "$value": "1.875rem" },
+      "h1":       { "$value": "2.375rem" },
+      "display":  { "$value": "3.25rem" },
+      "masthead": { "$value": "4.25rem" }
+    },
+    "line-height": {
+      "$type": "dimension",
+      "$description": "PRIMITIVE. All line heights sit on the 4px baseline grid.",
+      "caption":  { "$value": "1rem" },
+      "small":    { "$value": "1.25rem" },
+      "body":     { "$value": "1.5rem" },
+      "prose":    { "$value": "1.75rem", "$description": "The 28px prose baseline." },
+      "lede":     { "$value": "1.75rem" },
+      "h4":       { "$value": "1.75rem" },
+      "h3":       { "$value": "2rem" },
+      "h2":       { "$value": "2.25rem" },
+      "h1":       { "$value": "2.75rem" },
+      "display":  { "$value": "3.5rem" },
+      "masthead": { "$value": "4.25rem" }
+    },
+    "tracking": {
+      "$type": "dimension",
+      "$description": "PRIMITIVE. Letterspacing.",
+      "tight":  { "$value": "-0.01em", "$description": "Display sizes." },
+      "normal": { "$value": "0em" },
+      "caps":   { "$value": "0.08em", "$description": "Small caps runs, bylines." },
+      "label":  { "$value": "0.14em", "$description": "Mono caps labels, chips, buttons, figure labels." }
+    }
+  },
+
+  "space": {
+    "$type": "dimension",
+    "$description": "PRIMITIVE. 4px-grid spatial scale. Vertical margins are multiples of these.",
+    "1":  { "$value": "0.25rem" },
+    "2":  { "$value": "0.5rem" },
+    "3":  { "$value": "0.75rem" },
+    "4":  { "$value": "1rem" },
+    "5":  { "$value": "1.5rem" },
+    "6":  { "$value": "1.75rem", "$description": "One prose baseline (28px)." },
+    "7":  { "$value": "2rem" },
+    "8":  { "$value": "3rem" },
+    "9":  { "$value": "3.5rem", "$description": "Two prose baselines." },
+    "10": { "$value": "4rem" },
+    "11": { "$value": "6rem" },
+    "12": { "$value": "8rem" }
+  },
+
+  "size": {
+    "$type": "dimension",
+    "$description": "SEMANTIC. Layout measures.",
+    "measure-prose":  { "$value": "42rem", "$description": "Single-column article measure (~66ch at prose size)." },
+    "measure-wide":   { "$value": "64rem", "$description": "Figures, tables, wide panes." },
+    "measure-page":   { "$value": "76rem", "$description": "Page shell max-width." },
+    "control-height": { "$value": "2.5rem", "$description": "Buttons, inputs (40px; 44px+ tap target with border)." }
+  },
+
+  "radius": {
+    "$type": "dimension",
+    "$description": "PRIMITIVE. Print is square. Radii are small and rare.",
+    "none": { "$value": "0rem", "$description": "Default: panes, buttons, figures." },
+    "tick": { "$value": "0.125rem", "$description": "Chips, inputs, kbd — takes the edge off." },
+    "soft": { "$value": "0.25rem", "$description": "Images and large surfaces only." },
+    "full": { "$value": "624.9375rem", "$description": "Status dots and index counters only." }
+  },
+
+  "border": {
+    "width": {
+      "$type": "dimension",
+      "$description": "PRIMITIVE. Rule weights.",
+      "hairline": { "$value": "0.0625rem" },
+      "rule":     { "$value": "0.09375rem", "$description": "1.5px — buttons, pane frames." },
+      "heavy":    { "$value": "0.1875rem", "$description": "3px — masthead bars, emphatic rules." }
+    },
+    "style": {
+      "$type": "strokeStyle",
+      "$description": "PRIMITIVE.",
+      "solid":  { "$value": "solid" },
+      "dashed": { "$value": "dashed", "$description": "Schematic annotation: leader lines, cut lines, chart grids." },
+      "double": { "$value": "double", "$description": "Newspaper section rules." },
+      "dotted": { "$value": "dotted", "$description": "Footnote separators, index leaders." }
+    }
+  },
+
+  "shadow": {
+    "$description": "SEMANTIC. No blur anywhere — depth is misregistration, not atmosphere.",
+    "plate": {
+      "$type": "shadow",
+      "$value": { "color": "{color.emphasis.plate}", "offsetX": "0.375rem", "offsetY": "0.375rem", "blur": "0rem", "spread": "0rem" },
+      "$description": "Offset highlighter plate: strong block emphasis."
+    },
+    "plate-ink": {
+      "$type": "shadow",
+      "$value": { "color": "{color.action.primary}", "offsetX": "0.375rem", "offsetY": "0.375rem", "blur": "0rem", "spread": "0rem" },
+      "$description": "Ink plate: emphasized panes and CTAs."
+    },
+    "plate-sm": {
+      "$type": "shadow",
+      "$value": { "color": "{color.emphasis.plate}", "offsetX": "0.1875rem", "offsetY": "0.1875rem", "blur": "0rem", "spread": "0rem" },
+      "$description": "Small offset for buttons and chips."
+    }
+  },
+
+  "motion": {
+    "$description": "PRIMITIVE. Motion is discreet: state changes, not theater.",
+    "duration": {
+      "$type": "duration",
+      "fast":   { "$value": "120ms" },
+      "gentle": { "$value": "240ms" }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "out":   { "$value": [0.2, 0, 0, 1] },
+      "inout": { "$value": [0.45, 0, 0.15, 1] }
+    }
+  },
+
+  "typography": {
+    "$type": "typography",
+    "$description": "SEMANTIC. Composite styles for the recurring editorial voices.",
+    "masthead": {
+      "$value": { "fontFamily": "{font.family.display}", "fontSize": "{font.size.masthead}", "fontWeight": "{font.weight.black}", "lineHeight": "{font.line-height.masthead}", "letterSpacing": "{font.tracking.tight}" }
+    },
+    "headline": {
+      "$value": { "fontFamily": "{font.family.display}", "fontSize": "{font.size.h1}", "fontWeight": "{font.weight.bold}", "lineHeight": "{font.line-height.h1}", "letterSpacing": "{font.tracking.tight}" }
+    },
+    "prose": {
+      "$value": { "fontFamily": "{font.family.text}", "fontSize": "{font.size.prose}", "fontWeight": "{font.weight.regular}", "lineHeight": "{font.line-height.prose}", "letterSpacing": "{font.tracking.normal}" }
+    },
+    "label": {
+      "$value": { "fontFamily": "{font.family.data}", "fontSize": "{font.size.caption}", "fontWeight": "{font.weight.semibold}", "lineHeight": "{font.line-height.caption}", "letterSpacing": "{font.tracking.label}" },
+      "$description": "The schematic voice: uppercase mono. Chips, buttons, figure labels, axes."
+    }
+  },
+
+  "component": {
+    "$description": "COMPONENT tier. Named per element; every value aliases the semantic tier.",
+    "button": {
+      "$type": "color",
+      "primary": {
+        "background": { "$value": "{color.action.primary}" },
+        "background-hover": { "$value": "{color.action.primary-hover}" },
+        "text": { "$value": "{color.action.on-primary}" },
+        "border": { "$value": "{color.action.primary}" }
+      },
+      "secondary": {
+        "background": { "$value": "#00000000", "$description": "Transparent; paper shows through." },
+        "text": { "$value": "{color.action.secondary}" },
+        "border": { "$value": "{color.action.secondary}" }
+      },
+      "ghost": {
+        "background": { "$value": "#00000000" },
+        "text": { "$value": "{color.text.link}" },
+        "border": { "$value": "#00000000" }
+      },
+      "destructive": {
+        "background": { "$value": "{color.action.destructive}" },
+        "background-hover": { "$value": "{color.action.destructive-hover}" },
+        "text": { "$value": "{color.action.on-destructive}" },
+        "border": { "$value": "{color.action.destructive}" }
+      }
+    },
+    "chip": {
+      "$type": "color",
+      "background": { "$value": "#00000000" },
+      "text": { "$value": "{color.text.secondary}" },
+      "border": { "$value": "{color.border.mid}" },
+      "selected-background": { "$value": "{color.emphasis.highlight}" },
+      "selected-text": { "$value": "{color.emphasis.highlight-ink}" },
+      "selected-border": { "$value": "{color.border.strong}" }
+    },
+    "pane": {
+      "$type": "color",
+      "background": { "$value": "{color.surface.raised}" },
+      "border": { "$value": "{color.border.hairline}" },
+      "header-text": { "$value": "{color.text.muted}" },
+      "inverse-background": { "$value": "{color.surface.inverse}" },
+      "inverse-text": { "$value": "{color.text.inverse}" }
+    },
+    "input": {
+      "$type": "color",
+      "background": { "$value": "{color.surface.raised}" },
+      "text": { "$value": "{color.text.primary}" },
+      "border": { "$value": "{color.border.mid}" },
+      "border-focus": { "$value": "{color.border.strong}" },
+      "placeholder": { "$value": "{color.text.faint}" }
+    },
+    "table": {
+      "$type": "color",
+      "header-text": { "$value": "{color.text.muted}" },
+      "rule": { "$value": "{color.border.hairline}" },
+      "stripe": { "$value": "{color.surface.sunken}" }
+    },
+    "mark": {
+      "$type": "color",
+      "background": { "$value": "{color.emphasis.highlight}" },
+      "text": { "$value": "{color.emphasis.highlight-ink}" }
+    }
+  }
+}

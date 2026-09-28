@@ -1,0 +1,30 @@
+{
+  "name": "theme",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tokens": "node scripts/build-tokens.mjs",
+    "contrast": "node scripts/check-contrast.mjs",
+    "css": "tailwindcss -i site/assets/app.css -o site/assets/built/app.css --minify",
+    "build": "npm run tokens && npm run contrast && npm run css",
+    "serve": "python3 -m http.server 8000 --bind 0.0.0.0 --directory site",
+    "verify": "node scripts/verify-site.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "puppeteer-core": "^25.12.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/lora": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@observablehq/plot": "^0.6.17"
+  }
+}

@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Styleguide — The Foolscap Design System</title>
+<meta name="description" content="Specimen sheet for Foolscap: tokens, typography, color, components, and figure styles." />
+<link rel="stylesheet" href="assets/built/app.css" />
+<script src="assets/vendor/d3.min.js"></script>
+<script src="assets/vendor/plot.umd.min.js"></script>
+<script src="assets/foolscap-plot.js"></script>
+</head>
+<body class="bg-surface-page text-text-primary font-text">
+
+<div class="border-b border-border-hairline">
+  <div class="max-w-page mx-auto px-6 py-2 flex items-baseline justify-between gap-4">
+    <a class="fc-label hover:text-text-primary" href="index.html">← The Foolscap Folio</a>
+    <button class="fc-chip" onclick="fcToggleTheme()">Blueprint</button>
+  </div>
+</div>
+
+<header class="max-w-page mx-auto px-6 pt-10 pb-8">
+  <p class="fc-label mb-3">Specimen sheet · Sheet 1 of 1 · Scale 1:1</p>
+  <h1 class="font-display text-display font-bold tracking-tight">The Foolscap Design System</h1>
+  <p class="fc-lede text-lede italic text-text-secondary mt-4 max-w-prose">
+    Dark blue-green and gray serif ink on creamy paper; the manner of an aged newspaper
+    crossed with an antique engineering schematic. Every value on this sheet resolves to
+    a token in <code class="font-data text-small">foolscap.tokens.json</code>.
+  </p>
+  <hr class="mt-6 border-0 border-t-3 border-border-strong" />
+  <hr class="mt-1 border-0 border-t border-border-hairline" />
+</header>
+
+<main class="max-w-page mx-auto px-6 pb-16 space-y-14">
+
+  <!-- ============ COLOR ============ -->
+  <section id="color">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">01 · Color</h2>
+      <p class="fc-label">tokens: color.*</p>
+    </div>
+
+    <h3 class="fc-label mt-8 mb-3">Primitive ramps — reference tier</h3>
+    <div id="ramps" class="space-y-2"></div>
+
+    <h3 class="fc-label mt-10 mb-3">Semantic tier — purpose names</h3>
+    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-4" id="semantics"></div>
+  </section>
+
+  <!-- ============ TYPE ============ -->
+  <section id="type">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">02 · Typography</h2>
+      <p class="fc-label">tokens: font.* · typography.*</p>
+    </div>
+
+    <div class="mt-8 space-y-6">
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">masthead · Playfair 800 · 68/68</p>
+        <p class="font-display text-masthead font-extrabold tracking-tight lg:col-span-9">Foolscap</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">h1 / headline · Playfair 700 · 38/44</p>
+        <p class="font-display text-h1 font-bold tracking-tight lg:col-span-9">The Shrinking Atlantic, Measured</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">h2 · Playfair 700 · 30/36</p>
+        <p class="font-display text-h2 font-bold tracking-tight lg:col-span-9">I. The Record as a Curve</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">h3 · Lora 600 · 24/32</p>
+        <p class="text-h3 font-semibold lg:col-span-9">Boiler pressure and its discontents</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">lede · Lora 400 italic · 19/28</p>
+        <p class="text-lede italic text-text-secondary lg:col-span-9">A century of boiler pressure, rivet counts, and national vanity, read from the record book.</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">prose · Lora 400 · 17/28</p>
+        <p class="text-prose lg:col-span-9 max-w-prose">The North Atlantic is the best-documented stretch of water on Earth, and for a hundred years its passenger record was the most public benchmark in engineering. Body text carries a <a href="#" class="text-text-link underline underline-offset-2">standard link</a>, <mark>a highlighter swipe</mark>, and <code>inline code</code>.</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline border-b border-border-hairline pb-4">
+        <p class="fc-label lg:col-span-3">label · Plex Mono 600 · 12/16 · +14% · caps</p>
+        <p class="fc-label lg:col-span-9 !text-text-primary">Fig. 3 — Installed Power Against Record Speed</p>
+      </div>
+      <div class="grid lg:grid-cols-12 gap-2 lg:gap-6 items-baseline">
+        <p class="fc-label lg:col-span-3">byline · Lora 400 · 14/20 · +8% · caps</p>
+        <p class="fc-byline lg:col-span-9">By J. P. Bonner · Monday, September 28, 2026</p>
+      </div>
+    </div>
+
+    <div class="fc-note fc-note-info mt-8 text-small max-w-wide">Vertical rhythm: 4px baseline
+      grid; prose baseline 28px. Paragraph spacing, heading margins, and figure margins are
+      whole baselines (see docs/guidelines.md §2.3).</div>
+  </section>
+
+  <!-- ============ EMPHASIS ============ -->
+  <section id="emphasis">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">03 · Emphasis — the offset plate</h2>
+      <p class="fc-label">tokens: shadow.plate* · color.emphasis.*</p>
+    </div>
+    <p class="text-body text-text-secondary mt-6 max-w-prose">One loud voice. A flat ochre
+      (or ink) plate offset down-right, like a misregistered spot color. Maximum one plated
+      element per view; below it, the quiet ladder: size → case → rule → tint.</p>
+    <div class="mt-8 grid gap-10 md:grid-cols-3 max-w-wide">
+      <div class="fc-pane fc-plate">
+        <div class="fc-pane-body">
+          <p class="fc-label mb-2">shadow.plate</p>
+          <p class="text-body">A pane on the ochre plate — the standard strong emphasis.</p>
+        </div>
+      </div>
+      <div class="fc-pane fc-pane-inverse fc-plate">
+        <div class="fc-pane-body">
+          <p class="fc-label mb-2">inverse + plate</p>
+          <p class="text-body">An ink pane on the plate: the loudest legal combination.</p>
+        </div>
+      </div>
+      <div class="self-center space-y-4">
+        <p><button class="fc-btn fc-btn-primary fc-btn-plated">Plated button</button></p>
+        <p class="text-prose">Inline: the assay returned <mark>34.51 knots average</mark>, a record.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPONENTS ============ -->
+  <section id="components">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">04 · Components</h2>
+      <p class="fc-label">tokens: component.*</p>
+    </div>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-2">
+
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">Buttons</span><span class="fc-label">component.button.*</span></div>
+        <div class="fc-pane-body space-y-4">
+          <div class="flex flex-wrap gap-3">
+            <button class="fc-btn fc-btn-primary">Primary</button>
+            <button class="fc-btn fc-btn-secondary">Secondary</button>
+            <button class="fc-btn fc-btn-ghost">Ghost</button>
+            <button class="fc-btn fc-btn-destructive">Destructive</button>
+            <button class="fc-btn fc-btn-primary" disabled>Disabled</button>
+          </div>
+          <p class="text-small text-text-muted">Mono caps, 40px, square, 1.5px rule. Hover deepens ink; active presses 1px into the paper; focus draws the ochre ring.</p>
+        </div>
+      </div>
+
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">Chips &amp; labels</span><span class="fc-label">component.chip.*</span></div>
+        <div class="fc-pane-body space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <button class="fc-chip">Data history</button>
+            <button class="fc-chip">Steamships</button>
+            <button class="fc-chip fc-chip-selected">Charts</button>
+            <button class="fc-chip"><span class="fc-dot text-feedback-success"></span> In print</button>
+            <button class="fc-chip"><span class="fc-dot text-feedback-danger"></span> Retracted</button>
+          </div>
+          <p><span class="fc-label">Eyebrow label</span> · <span class="fc-byline">Byline dateline</span> · <kbd>Ctrl</kbd> <kbd>K</kbd></p>
+        </div>
+      </div>
+
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">Form controls</span><span class="fc-label">component.input.*</span></div>
+        <div class="fc-pane-body grid gap-5 sm:grid-cols-2">
+          <label class="fc-field"><span class="fc-label">Vessel name</span>
+            <input class="fc-input" placeholder="e.g. Mauretania" /></label>
+          <label class="fc-field"><span class="fc-label">Propulsion</span>
+            <select class="fc-input"><option>Turbine</option><option>Twin screw</option><option>Paddle</option></select></label>
+          <label class="fc-field sm:col-span-2"><span class="fc-label">Remarks</span>
+            <textarea class="fc-input" rows="2" placeholder="Entered into the ledger…"></textarea></label>
+        </div>
+      </div>
+
+      <div class="fc-pane">
+        <div class="fc-pane-header"><span class="fc-label">Notes</span><span class="fc-label">color.feedback.*</span></div>
+        <div class="fc-pane-body space-y-3">
+          <div class="fc-note fc-note-info">Info — the styleguide has been reprinted.</div>
+          <div class="fc-note fc-note-success">Success — entry accepted into the ledger.</div>
+          <div class="fc-note fc-note-warning">Warning — sources disagree by half a knot.</div>
+          <div class="fc-note fc-note-danger">Danger — this record was disallowed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- table specimen -->
+    <div class="fc-pane mt-8">
+      <div class="fc-pane-header"><span class="fc-label">Table</span><span class="fc-label">component.table.*</span></div>
+      <div class="fc-pane-body overflow-x-auto">
+        <table class="fc-table">
+          <thead><tr><th>Year</th><th>Vessel</th><th class="text-right">Speed, kn</th><th class="text-right">Power, hp</th><th>Flag</th></tr></thead>
+          <tbody>
+            <tr><td data-num>1838</td><td><em>Great Western</em></td><td data-num>8.66</td><td data-num>750</td><td>GB</td></tr>
+            <tr><td data-num>1909</td><td><em>Mauretania</em></td><td data-num>26.06</td><td data-num>76,000</td><td>GB</td></tr>
+            <tr><td data-num>1935</td><td><em>Normandie</em></td><td data-num>29.98</td><td data-num>160,000</td><td>FR</td></tr>
+            <tr><td data-num>1952</td><td><em>United States</em></td><td data-num>34.51</td><td data-num>240,000</td><td>US</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FIGURES ============ -->
+  <section id="figures">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">05 · Figures</h2>
+      <p class="fc-label">tokens: color.chart.* · Observable Plot</p>
+    </div>
+    <div class="mt-8 grid gap-8 lg:grid-cols-2">
+      <figure class="fc-figure fc-figure-framed">
+        <div id="sgLine"></div>
+        <figcaption class="fc-figcaption"><span class="fc-figno">Fig. S1</span>Line on
+          graph-paper grid; single series uses chart.ink.</figcaption>
+      </figure>
+      <figure class="fc-figure fc-figure-framed">
+        <div id="sgBars"></div>
+        <figcaption class="fc-figcaption"><span class="fc-figno">Fig. S2</span>Bars,
+          hairline-stroked in ink, categorical ramp chart.1–6 in order.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ TOKENS ============ -->
+  <section id="tokens">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">06 · Token taxonomy</h2>
+      <p class="fc-label">W3C DTCG · Curtis levels</p>
+    </div>
+    <p class="text-body text-text-secondary mt-6 max-w-prose">Three tiers; each references
+      only the tier below. The chain for a primary button's ground:</p>
+    <div class="mt-6 max-w-wide overflow-x-auto">
+      <div class="flex items-stretch gap-0 font-data text-small min-w-max">
+        <div class="fc-pane px-4 py-3"><p class="fc-label mb-1">component</p>component.button.primary.background</div>
+        <div class="self-center px-3 text-text-muted">→</div>
+        <div class="fc-pane px-4 py-3"><p class="fc-label mb-1">semantic</p>color.action.primary</div>
+        <div class="self-center px-3 text-text-muted">→</div>
+        <div class="fc-pane px-4 py-3"><p class="fc-label mb-1">primitive</p>color.spruce.700</div>
+        <div class="self-center px-3 text-text-muted">→</div>
+        <div class="fc-pane fc-pane-inverse px-4 py-3" style="background-color:#26453F"><p class="fc-label mb-1">value</p>#26453F</div>
+      </div>
+    </div>
+    <p class="text-body text-text-secondary mt-6 max-w-prose">Full taxonomy in
+      <code>docs/tokens.md</code>; source of truth <code>tokens/foolscap.tokens.json</code>;
+      emitted artifacts <code>dist/foolscap.vars.css</code> (custom properties, light + blueprint)
+      and <code>dist/foolscap.theme.css</code> (Tailwind v4 <code>@theme</code>).</p>
+  </section>
+</main>
+
+<footer class="border-t-3 border-border-strong">
+  <div class="max-w-page mx-auto px-6 py-6 bg-surface-aged flex flex-wrap items-baseline justify-between gap-4">
+    <p class="fc-label">Foolscap · specimen sheet</p>
+    <p class="text-small text-text-muted">Playfair Display · Lora · IBM Plex Mono</p>
+  </div>
+</footer>
+
+<script>
+  // ---- color ramps drawn from live custom properties ----
+  const RAMPS = {
+    cream: [50,100,200,300,400,500],
+    spruce: [50,100,200,300,400,500,600,700,800,900,950],
+    gray: [50,100,200,300,400,500,600,700,800,900],
+    prussian: [100,300,500,600,700,800,900,950],
+    ochre: [100,200,300,400,500,600,700],
+    rust: [100,300,500,600,700,800],
+    olive: [100,300,500,600,700],
+  };
+  const cs = getComputedStyle(document.documentElement);
+  const rampsEl = document.getElementById("ramps");
+  for (const [name, steps] of Object.entries(RAMPS)) {
+    const row = document.createElement("div");
+    row.className = "flex items-center gap-3";
+    row.innerHTML = `<span class="fc-label w-20 shrink-0">${name}</span>`;
+    const strip = document.createElement("div");
+    strip.className = "flex flex-1 border border-border-hairline";
+    for (const s of steps) {
+      const v = cs.getPropertyValue(`--fc-color-${name}-${s}`).trim();
+      const sw = document.createElement("div");
+      sw.className = "flex-1 h-9 relative group";
+      sw.style.backgroundColor = v;
+      sw.title = `${name}-${s} ${v}`;
+      strip.append(sw);
+    }
+    row.append(strip);
+    rampsEl.append(row);
+  }
+
+  // ---- semantic swatches ----
+  const SEMS = [
+    ["surface.page","Page ground"],["surface.raised","Panes"],["surface.sunken","Wells"],["surface.inverse","Ink plate"],
+    ["text.primary","Body ink"],["text.secondary","Deck ink"],["text.muted","Caption ink"],["text.link","Links"],
+    ["action.primary","Primary action"],["action.destructive","Destructive"],["emphasis.highlight","Highlighter"],["emphasis.plate","Plate"],
+    ["border.hairline","Hairline"],["border.strong","Strong rule"],["border.focus","Focus ring"],["chart.grid","Graph paper"],
+  ];
+  const semEl = document.getElementById("semantics");
+  for (const [path, label] of SEMS) {
+    const v = cs.getPropertyValue(`--fc-color-${path.replace(".","-")}`).trim();
+    const d = document.createElement("div");
+    d.className = "flex items-center gap-3 border border-border-hairline p-2 bg-surface-raised";
+    d.innerHTML = `<span class="w-9 h-9 shrink-0 border border-border-hairline" style="background:${v}"></span>
+      <span class="min-w-0"><span class="fc-label block truncate">color.${path}</span>
+      <span class="text-small text-text-muted">${label}</span></span>`;
+    semEl.append(d);
+  }
+
+  // ---- specimen figures ----
+  const wave = d3.range(0, 40).map((i) => ({ x: 1900 + i, y: 12 + 6 * Math.sin(i / 5) + i * 0.25 }));
+  fcChart(document.getElementById("sgLine"), (t) => ({
+    height: 240, marginLeft: 36,
+    x: { label: "Year", tickFormat: "d" }, y: { label: "Reading" },
+    marks: [
+      Plot.line(wave, { x: "x", y: "y", stroke: t.ink, strokeWidth: 1.5 }),
+      Plot.dot(wave.filter((_, i) => i % 8 === 0), { x: "x", y: "y", fill: t.ink, r: 2.5 }),
+    ],
+  }));
+
+  const cats = [
+    { k: "Paddle", v: 14.5 }, { k: "Single screw", v: 18.7 }, { k: "Twin screw", v: 23.0 },
+    { k: "Turbine", v: 31.0 }, { k: "Turbo-electric", v: 30.0 }, { k: "Diesel", v: 21.8 },
+  ];
+  fcChart(document.getElementById("sgBars"), (t) => ({
+    height: 240, marginLeft: 36, marginBottom: 42,
+    x: { label: null, tickRotate: -20 }, y: { label: "Best speed (kn)" },
+    color: { domain: cats.map(d => d.k), range: t.series },
+    marks: [ Plot.barY(cats, { x: "k", y: "v", fill: "k", stroke: t.ink, strokeWidth: 1 }) ],
+  }));
+</script>
+</body>
+</html>

@@ -71,6 +71,9 @@ const pairs = [
   ["component.graph.node.outline", "component.graph.background", 3, "graph node outline"],
   ["component.graph.edge.line", "component.graph.background", 3, "graph edge"],
   ["component.graph.focus.ring", "component.graph.background", 3, "graph focus ring"],
+  // Unassigned (no series) marks: the fill is a mark and carries the texture.
+  ["component.graph.node.fill", "component.graph.background", 3, "graph node fill (no series)"],
+  ["component.graph.texture.ink", "component.graph.node.fill", 3, "graph texture on default fill"],
   ...["past", "now", "near", "far"].map((p) => [`component.graph.proximity.${p}.color`, "component.graph.background", 3, `graph proximity ${p}`]),
   ...[1, 2, 3, 4, 5, 6].flatMap((i) => [
     [`component.graph.series.${i}`, "component.graph.background", 3, `graph series ${i}`],

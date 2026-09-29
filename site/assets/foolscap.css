@@ -443,10 +443,19 @@
     --fc-graph-ring-dash: var(--fc-component-graph-proximity-none-dash);
     cursor: grab;
     outline: none; /* focus is drawn by .fc-graph-node-focus */
-    transition: opacity var(--fc-motion-duration-fast) var(--fc-motion-easing-out);
   }
   .fc-graph-node-dragging { cursor: grabbing; }
-  .fc-graph-node-dimmed { opacity: var(--fc-component-graph-node-opacity-dimmed); }
+  /* Dimmed = filter/search context. Only decoration fades (fill, texture, ring);
+     label, outline and focus ring stay at full contrast because the node is
+     still focusable. Channel values of a dimmed node must be in the label or
+     the figure's table equivalent (they fall below 3:1 here by design). */
+  .fc-graph-node-shape, .fc-graph-node-texture, .fc-graph-node-halo {
+    transition: fill-opacity var(--fc-motion-duration-fast) var(--fc-motion-easing-out),
+      opacity var(--fc-motion-duration-fast) var(--fc-motion-easing-out);
+  }
+  .fc-graph-node-dimmed .fc-graph-node-shape { fill-opacity: var(--fc-component-graph-node-opacity-dimmed); }
+  .fc-graph-node-dimmed .fc-graph-node-texture,
+  .fc-graph-node-dimmed .fc-graph-node-halo { opacity: var(--fc-component-graph-node-opacity-dimmed); }
 
   .fc-graph-node-hit {
     /* r = max(component.graph.node.hit-radius, outer ring) — set per node by

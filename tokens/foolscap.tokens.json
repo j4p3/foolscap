@@ -405,7 +405,7 @@
         "size-major": { "$type": "dimension", "$value": "{space.11}", "$description": "Major cell = 4 minor (96px)." }
       },
       "node": {
-        "fill":       { "$type": "color", "$value": "{color.surface.sunken}", "$description": "Fill when no series is assigned." },
+        "fill":       { "$type": "color", "$value": "{color.chart.ink}", "$description": "Fill when no series is assigned: ink-bearing neutral so the mark and its texture clear 3:1." },
         "fill-open":  { "$type": "color", "$value": "{color.surface.raised}", "$description": "Hollow (texture-open) interior." },
         "outline":    { "$type": "color", "$value": "{color.border.strong}" },
         "outline-width":        { "$type": "dimension", "$value": "{border.width.hairline}" },

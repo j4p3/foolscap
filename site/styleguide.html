@@ -231,10 +231,12 @@
       not boxes. Five channels, each redundant with something other than hue —
       <em>series</em> (fill), <em>texture</em> (pattern), <em>size</em> (radius),
       <em>shape</em> (silhouette), <em>proximity</em> (outer ring colour + weight + dash).
-      Drag the paper to pan, drag a mark to move it, wheel or ± to zoom, 0 to reset.</p>
+      Drag the paper to pan, drag a mark to move it, wheel or ± to zoom, 0 to reset — or use
+      the buttons below the plate. With a mark focused, Enter or Space selects it and the
+      arrow keys move it (Shift for larger steps).</p>
 
     <figure class="fc-graph fc-figure mt-8">
-      <svg id="sgGraph" class="fc-graph-canvas" tabindex="0" role="group" aria-label="Specimen graph: twelve labelled marks across six series. Arrow keys pan, plus and minus zoom, 0 resets."><defs id="sgGraphDefs"></defs>
+      <svg id="sgGraph" class="fc-graph-canvas" tabindex="0" role="group" aria-label="Specimen graph: twelve labelled marks across six series; same data in the table below. Canvas: arrow keys pan, plus and minus zoom, 0 resets. Mark: Enter or Space selects, arrow keys move."><defs id="sgGraphDefs"></defs>
         <g class="fc-graph-viewport" id="sgGraphViewport"><rect class="fc-graph-grid" x="-4000" y="-4000" width="8000" height="8000"></rect><g id="sgGraphEdges"></g><g id="sgGraphNodes"></g></g>
       </svg>
       <div class="fc-graph-controls">
@@ -246,7 +248,30 @@
         graph-paper grid; labels are mono apparatus with a paper knockout, never boxed.</figcaption>
     </figure>
 
+    <div class="mt-4 flex flex-wrap items-center gap-x-8 gap-y-3" id="sgGraphMoveControls">
+      <div class="flex items-center gap-1" role="group" aria-label="Pan the plate">
+        <span class="fc-label mr-2">Pan</span>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Pan left" data-pan="-1,0">←</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Pan up" data-pan="0,-1">↑</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Pan down" data-pan="0,1">↓</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Pan right" data-pan="1,0">→</button>
+      </div>
+      <div class="flex items-center gap-1" role="group" aria-label="Move the selected mark">
+        <span class="fc-label mr-2">Move selected</span>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Move selected mark left" data-move="-1,0">←</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Move selected mark up" data-move="0,-1">↑</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Move selected mark down" data-move="0,1">↓</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Move selected mark right" data-move="1,0">→</button>
+      </div>
+      <p class="text-small text-text-muted" id="sgGraphStatus" role="status" aria-live="polite"></p>
+    </div>
+
     <div class="mt-6 space-y-3" id="sgGraphLegend"></div>
+
+    <details class="fc-pane mt-6">
+      <summary class="fc-pane-header cursor-pointer"><span class="fc-label">Graph data as tables (marks and links)</span></summary>
+      <div class="fc-pane-body overflow-x-auto" id="sgGraphTable"></div>
+    </details>
   </section>
 
   <!-- ============ TOKENS ============ -->
@@ -377,7 +402,7 @@
 
     function edgeGeom(e) {
       const a = byId[e[0]], b = byId[e[1]];
-      const ra = G.outerRadius(m.radius[a.size], a.proximity, m), rb = G.outerRadius(m.radius[b.size], b.proximity, m);
+      const ra = G.outerRadius(a.shape, m.radius[a.size], a.proximity, m), rb = G.outerRadius(b.shape, m.radius[b.size], b.proximity, m);
       return G.trimEdge(a, b, ra, rb);
     }
     function drawEdges() {
@@ -390,10 +415,27 @@
     function draw() {
       m = G.metrics(svg);
       document.getElementById("sgGraphDefs").innerHTML = G.defs(m);
-      document.getElementById("sgGraphNodes").innerHTML = NODES.map((n) => G.node(n, m)).join("");
+      document.getElementById("sgGraphNodes").innerHTML = NODES.map((n) => G.node(Object.assign({}, n, {
+        attrs: { "aria-label": describe(n), "aria-pressed": n.selected ? "true" : "false" },
+      }), m)).join("");
       drawEdges();
       drawLegend();
     }
+
+    // Words for every channel: the accessible name and the table carry the data.
+    const SIZE_WORD = { sm: "small", md: "medium", lg: "large" };
+    const EDGE_WORD = (e) => (e[2] === 1 ? "emphasised" : e[2] === "dash" ? "tentative (dashed)" : "plain");
+    const describe = (n) => `${n.label}: series ${n.series}, ${n.texture} ${SIZE_WORD[n.size]} ${n.shape}, proximity ${n.proximity}` +
+      (n.dimmed ? ", filtered out" : "") + (n.labelMuted ? ", secondary" : "");
+    function drawTable() {
+      const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+      const rows = NODES.map((n) => `<tr><td>${esc(n.label)}</td><td>${n.series}</td><td>${n.texture}</td><td>${SIZE_WORD[n.size]}</td><td>${n.shape}</td><td>${n.proximity}</td><td>${n.dimmed ? "filtered out" : n.labelMuted ? "secondary" : "—"}</td></tr>`).join("");
+      const links = EDGES.map((e) => `<tr><td>${esc(byId[e[0]].label)}</td><td>${esc(byId[e[1]].label)}</td><td>${EDGE_WORD(e)}</td></tr>`).join("");
+      document.getElementById("sgGraphTable").innerHTML =
+        `<table class="fc-table"><caption class="fc-label text-left pb-2">Marks</caption><thead><tr><th scope="col">Label</th><th scope="col">Series</th><th scope="col">Texture</th><th scope="col">Size</th><th scope="col">Shape</th><th scope="col">Proximity</th><th scope="col">State</th></tr></thead><tbody>${rows}</tbody></table>` +
+        `<table class="fc-table mt-6"><caption class="fc-label text-left pb-2">Links (from → to)</caption><thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col">Link</th></tr></thead><tbody>${links}</tbody></table>`;
+    }
+    drawTable();
 
     function glyph(o) {
       const s = m.glyph, c = s / 2;
@@ -416,17 +458,30 @@
 
     draw();
     document.addEventListener("fc:theme", draw);
+    // Enter/Space on a focused mark dispatch a click (panZoom default activation),
+    // so the delegated click handler below serves pointer and keyboard alike.
     const pz = G.panZoom(svg, document.getElementById("sgGraphViewport"), {
       onMove(el, x, y) { const n = byId[el.dataset.id]; n.x = x; n.y = y; drawEdges(); },
     });
+    const status = document.getElementById("sgGraphStatus");
     document.querySelectorAll("[data-zoom]").forEach((b) => b.addEventListener("click", () => {
       const z = b.dataset.zoom; z === "reset" ? pz.reset() : pz.zoomBy(+z);
     }));
+    // Single-pointer alternatives to dragging (WCAG 2.5.7).
+    document.querySelectorAll("[data-pan]").forEach((b) => b.addEventListener("click", () => {
+      const [dx, dy] = b.dataset.pan.split(",").map(Number); pz.panBy(-dx * 48, -dy * 48);
+    }));
+    document.querySelectorAll("[data-move]").forEach((b) => b.addEventListener("click", () => {
+      const el = svg.querySelector(".fc-graph-node-selected");
+      if (!el) { status.textContent = "Select a mark first (click it, or focus it and press Enter)."; return; }
+      const [dx, dy] = b.dataset.move.split(",").map(Number); pz.moveBy(el, dx * 16, dy * 16);
+      status.textContent = "";
+    }));
     svg.addEventListener("click", (e) => {
       const g = e.target.closest(".fc-graph-node");
-      svg.querySelectorAll(".fc-graph-node-selected").forEach((n) => n.classList.remove("fc-graph-node-selected"));
+      svg.querySelectorAll(".fc-graph-node-selected").forEach((n) => { n.classList.remove("fc-graph-node-selected"); n.setAttribute("aria-pressed", "false"); });
       NODES.forEach((n) => (n.selected = false));
-      if (g) { g.classList.add("fc-graph-node-selected"); byId[g.dataset.id].selected = true; }
+      if (g) { g.classList.add("fc-graph-node-selected"); g.setAttribute("aria-pressed", "true"); byId[g.dataset.id].selected = true; status.textContent = `Selected ${byId[g.dataset.id].label}.`; }
     });
   })();
 </script>

@@ -9,6 +9,7 @@
 <script src="assets/vendor/d3.min.js"></script>
 <script src="assets/vendor/plot.umd.min.js"></script>
 <script src="assets/foolscap-plot.js"></script>
+<script src="assets/foolscap-graph.js"></script>
 </head>
 <body class="bg-surface-page text-text-primary font-text">
 
@@ -220,10 +221,38 @@
     </div>
   </section>
 
+  <!-- ============ GRAPH ============ -->
+  <section id="graph">
+    <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
+      <h2 class="font-display text-h2 font-bold tracking-tight">06 · Graph — labelled marks</h2>
+      <p class="fc-label">tokens: component.graph.* · .fc-graph*</p>
+    </div>
+    <p class="text-body text-text-secondary mt-6 max-w-prose">A node-link plate: points,
+      not boxes. Five channels, each redundant with something other than hue —
+      <em>series</em> (fill), <em>texture</em> (pattern), <em>size</em> (radius),
+      <em>shape</em> (silhouette), <em>proximity</em> (outer ring colour + weight + dash).
+      Drag the paper to pan, drag a mark to move it, wheel or ± to zoom, 0 to reset.</p>
+
+    <figure class="fc-graph fc-figure mt-8">
+      <svg id="sgGraph" class="fc-graph-canvas" tabindex="0" role="group" aria-label="Specimen graph: twelve labelled marks across six series. Arrow keys pan, plus and minus zoom, 0 resets."><defs id="sgGraphDefs"></defs>
+        <g class="fc-graph-viewport" id="sgGraphViewport"><rect class="fc-graph-grid" x="-4000" y="-4000" width="8000" height="8000"></rect><g id="sgGraphEdges"></g><g id="sgGraphNodes"></g></g>
+      </svg>
+      <div class="fc-graph-controls">
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Zoom in" data-zoom="1.25">+</button>
+        <button class="fc-btn fc-btn-secondary" type="button" aria-label="Zoom out" data-zoom="0.8">−</button>
+        <button class="fc-btn fc-btn-secondary" type="button" data-zoom="reset">Reset</button>
+      </div>
+      <figcaption class="«redacted:fc-…»"><span class="fc-figno">Fig. S3</span>Graph plate on
+        graph-paper grid; labels are mono apparatus with a paper knockout, never boxed.</figcaption>
+    </figure>
+
+    <div class="mt-6 space-y-3" id="sgGraphLegend"></div>
+  </section>
+
   <!-- ============ TOKENS ============ -->
   <section id="tokens">
     <div class="flex items-baseline justify-between border-b border-border-hairline pb-2">
-      <h2 class="font-display text-h2 font-bold tracking-tight">06 · Token taxonomy</h2>
+      <h2 class="font-display text-h2 font-bold tracking-tight">07 · Token taxonomy</h2>
       <p class="fc-label">W3C DTCG · Curtis levels</p>
     </div>
     <p class="text-body text-text-secondary mt-6 max-w-prose">Three tiers; each references
@@ -323,6 +352,83 @@
     color: { domain: cats.map(d => d.k), range: t.series },
     marks: [ Plot.barY(cats, { x: "k", y: "v", fill: "k", stroke: t.ink, strokeWidth: 1 }) ],
   }));
+
+  // ---- graph specimen (fcGraph helpers + .fc-graph* classes) ----
+  (function () {
+    const G = window.fcGraph;
+    const svg = document.getElementById("sgGraph");
+    const NODES = [
+      { id: "a", x: 120, y: 110, label: "Survey hull", series: 1, shape: "circle",   size: "lg", texture: "solid",      proximity: "past" },
+      { id: "b", x: 300, y: 80,  label: "Rivet count", series: 1, shape: "square",   size: "md", texture: "hatch",      proximity: "now" },
+      { id: "c", x: 470, y: 150, label: "Boiler test", series: 2, shape: "diamond",  size: "md", texture: "crosshatch", proximity: "near" },
+      { id: "d", x: 650, y: 90,  label: "Trial run",   series: 2, shape: "triangle", size: "sm", texture: "dots",       proximity: "far" },
+      { id: "e", x: 820, y: 170, label: "Log speed",   series: 3, shape: "hexagon",  size: "lg", texture: "open",       proximity: "none" },
+      { id: "f", x: 190, y: 290, label: "Draft specs", series: 3, shape: "circle",   size: "sm", texture: "hatch",      proximity: "near", selected: true },
+      { id: "g", x: 380, y: 300, label: "Order coal",  series: 4, shape: "square",   size: "lg", texture: "dots",       proximity: "past" },
+      { id: "h", x: 560, y: 320, label: "Crew roster", series: 4, shape: "diamond",  size: "sm", texture: "solid",      proximity: "far" },
+      { id: "i", x: 740, y: 300, label: "Harbour fee", series: 5, shape: "triangle", size: "lg", texture: "crosshatch", proximity: "now" },
+      { id: "j", x: 920, y: 330, label: "File claim",  series: 5, shape: "hexagon",  size: "md", texture: "solid",      proximity: "none", dimmed: true },
+      { id: "k", x: 250, y: 385, label: "Index plates", series: 6, shape: "circle",  size: "md", texture: "open",       proximity: "far", labelMuted: true },
+      { id: "l", x: 660, y: 410, label: "Reprint",     series: 6, shape: "square",   size: "sm", texture: "hatch",      proximity: "past" },
+    ];
+    const EDGES = [["a","b"],["b","c"],["c","d"],["d","e"],["a","f"],["f","g",1],["g","h"],["h","i"],["i","j","dash"],["g","k"],["h","l","dash"],["c","g",1]];
+    const byId = Object.fromEntries(NODES.map((n) => [n.id, n]));
+    let m;
+
+    function edgeGeom(e) {
+      const a = byId[e[0]], b = byId[e[1]];
+      const ra = G.outerRadius(m.radius[a.size], a.proximity, m), rb = G.outerRadius(m.radius[b.size], b.proximity, m);
+      return G.trimEdge(a, b, ra, rb);
+    }
+    function drawEdges() {
+      document.getElementById("sgGraphEdges").innerHTML = EDGES.map((e) => {
+        const t = edgeGeom(e);
+        const cls = "fc-graph-edge" + (e[2] === 1 ? " fc-graph-edge-emphasis" : "") + (e[2] === "dash" ? " fc-graph-edge-dashed" : "");
+        return `<line class="${cls}" x1="${t.x1}" y1="${t.y1}" x2="${t.x2}" y2="${t.y2}" marker-end="url(#fc-graph-arrow)"/>`;
+      }).join("");
+    }
+    function draw() {
+      m = G.metrics(svg);
+      document.getElementById("sgGraphDefs").innerHTML = G.defs(m);
+      document.getElementById("sgGraphNodes").innerHTML = NODES.map((n) => G.node(n, m)).join("");
+      drawEdges();
+      drawLegend();
+    }
+
+    function glyph(o) {
+      const s = m.glyph, c = s / 2;
+      return `<svg class="fc-graph-glyph" viewBox="0 0 ${s} ${s}" aria-hidden="true">${G.node(Object.assign({ x: c, y: c, focusable: false }, o), m)}</svg>`;
+    }
+    function row(title, items) {
+      return `<div class="fc-graph-legend"><span class="fc-graph-legend-title">${title}</span>${items.join("")}</div>`;
+    }
+    const item = (g, text) => `<span class="fc-graph-legend-item">${g}${text}</span>`;
+    function drawLegend() {
+      const L = document.getElementById("sgGraphLegend");
+      L.innerHTML = [
+        row("Series", G.SERIES.map((i) => item(`<span class="fc-graph-swatch fc-graph-series-${i}"></span>`, `series ${i}`))),
+        row("Texture", G.TEXTURES.map((t) => item(glyph({ series: 1, texture: t, size: "md" }), t))),
+        row("Size", G.SIZES.map((s) => item(glyph({ size: s }), s))),
+        row("Shape", G.SHAPES.map((s) => item(glyph({ shape: s, size: "md" }), s))),
+        row("Proximity", G.PROXIMITY.map((p) => item(glyph({ size: "sm", proximity: p }), p))),
+      ].join("");
+    }
+
+    draw();
+    document.addEventListener("fc:theme", draw);
+    const pz = G.panZoom(svg, document.getElementById("sgGraphViewport"), {
+      onMove(el, x, y) { const n = byId[el.dataset.id]; n.x = x; n.y = y; drawEdges(); },
+    });
+    document.querySelectorAll("[data-zoom]").forEach((b) => b.addEventListener("click", () => {
+      const z = b.dataset.zoom; z === "reset" ? pz.reset() : pz.zoomBy(+z);
+    }));
+    svg.addEventListener("click", (e) => {
+      const g = e.target.closest(".fc-graph-node");
+      svg.querySelectorAll(".fc-graph-node-selected").forEach((n) => n.classList.remove("fc-graph-node-selected"));
+      NODES.forEach((n) => (n.selected = false));
+      if (g) { g.classList.add("fc-graph-node-selected"); byId[g.dataset.id].selected = true; }
+    });
+  })();
 </script>
 </body>
 </html>

@@ -64,6 +64,18 @@ const pairs = [
   ["color.feedback.warning", "color.feedback.warning-surface", 4.5, "warning note"],
   ["color.feedback.danger", "color.feedback.danger-surface", 4.5, "danger note"],
   ["color.chart.axis", "color.surface.page", 4.5, "axis labels"],
+  // Graph pattern: label text is text (4.5); marks/rings/edges are non-text
+  // graphics (WCAG 1.4.11, 3:1) against the graph plate.
+  ["component.graph.label.text", "component.graph.background", 4.5, "graph label"],
+  ["component.graph.label.muted", "component.graph.background", 4.5, "graph label muted"],
+  ["component.graph.node.outline", "component.graph.background", 3, "graph node outline"],
+  ["component.graph.edge.line", "component.graph.background", 3, "graph edge"],
+  ["component.graph.focus.ring", "component.graph.background", 3, "graph focus ring"],
+  ...["past", "now", "near", "far"].map((p) => [`component.graph.proximity.${p}.color`, "component.graph.background", 3, `graph proximity ${p}`]),
+  ...[1, 2, 3, 4, 5, 6].flatMap((i) => [
+    [`component.graph.series.${i}`, "component.graph.background", 3, `graph series ${i}`],
+    ["component.graph.texture.ink", `component.graph.series.${i}`, 3, `graph texture on series ${i}`],
+  ]),
 ];
 
 let fail = 0;

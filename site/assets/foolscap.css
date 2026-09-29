@@ -364,6 +364,246 @@
     font-weight: var(--fc-font-weight-bold);
     font-variant-numeric: tabular-nums;
   }
+
+  /* ---------- graph (node-link figure) ----------
+     Labelled point marks on a graph-paper plate. Five generic encoding
+     channels, each a class family on .fc-graph-node (or legend glyphs):
+       series-1..6   categorical fill        (--fc-graph-fill)
+       texture-*     fill pattern            (SVG <pattern> ids from fcGraph.defs())
+       size-sm|md|lg radius                  (--fc-graph-r; geometry via fcGraph.metrics())
+       shape         silhouette              (path d from fcGraph.shapePath())
+       proximity-*   outer ring colour+width+dash, ordinal past→now→near→far→none
+     Geometry that SVG cannot take from CSS (path d, pattern tiles) is computed by
+     site/assets/foolscap-graph.js from the same tokens. */
+
+  .fc-graph {
+    position: relative;
+    display: block;
+    margin: 0;
+  }
+  .fc-graph-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: var(--fc-component-graph-canvas-min-height);
+    background-color: var(--fc-component-graph-background);
+    border: var(--fc-border-width-hairline) solid var(--fc-component-graph-border);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fc-graph-canvas:focus-visible {
+    outline: var(--fc-component-graph-focus-width) solid var(--fc-component-graph-focus-ring);
+    outline-offset: calc(-1 * var(--fc-component-graph-focus-width));
+  }
+  .fc-graph-panning { cursor: grabbing; }
+  .fc-graph-viewport { transform-origin: 0 0; }
+
+  .fc-graph-grid { fill: url(#fc-graph-grid); pointer-events: none; }
+  .fc-graph-grid-line {
+    fill: none;
+    stroke: var(--fc-component-graph-grid-line);
+    stroke-width: var(--fc-border-width-hairline);
+  }
+  .fc-graph-grid-line-major {
+    fill: none;
+    stroke: var(--fc-component-graph-grid-line-major);
+    stroke-width: var(--fc-border-width-hairline);
+  }
+
+  .fc-graph-controls {
+    position: absolute;
+    top: var(--fc-space-3);
+    right: var(--fc-space-3);
+    display: flex;
+    gap: var(--fc-component-graph-controls-gap);
+  }
+
+  /* edges */
+  .fc-graph-edge {
+    fill: none;
+    stroke: var(--fc-component-graph-edge-line);
+    stroke-width: var(--fc-component-graph-edge-width);
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+  .fc-graph-edge-dashed { stroke-dasharray: var(--fc-component-graph-dash); }
+  .fc-graph-edge-emphasis {
+    stroke: var(--fc-component-graph-edge-line-emphasis);
+    stroke-width: var(--fc-component-graph-edge-width-emphasis);
+  }
+  .fc-graph-edge-marker { fill: var(--fc-component-graph-edge-line); stroke: none; }
+
+  /* nodes */
+  .fc-graph-node {
+    --fc-graph-r: var(--fc-component-graph-node-radius-md);
+    --fc-graph-ring: var(--fc-component-graph-proximity-none-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-none-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-none-dash);
+    cursor: grab;
+    outline: none; /* focus is drawn by .fc-graph-node-focus */
+    transition: opacity var(--fc-motion-duration-fast) var(--fc-motion-easing-out);
+  }
+  .fc-graph-node-dragging { cursor: grabbing; }
+  .fc-graph-node-dimmed { opacity: var(--fc-component-graph-node-opacity-dimmed); }
+
+  .fc-graph-node-hit {
+    /* r = max(component.graph.node.hit-radius, outer ring) — set per node by
+       fcGraph.node(); not declared here because CSS r would override the attribute. */
+    fill: none;
+    stroke: none;
+    pointer-events: all;
+  }
+  .fc-graph-node-shape {
+    fill: var(--fc-graph-fill, var(--fc-component-graph-node-fill));
+    stroke: var(--fc-component-graph-node-outline);
+    stroke-width: var(--fc-component-graph-node-outline-width);
+    stroke-linejoin: miter;
+  }
+  circle.fc-graph-node-shape { r: var(--fc-graph-r); }
+  .fc-graph-node-texture { fill: none; stroke: none; pointer-events: none; }
+  .fc-graph-node-halo {
+    fill: none;
+    stroke: var(--fc-graph-ring);
+    stroke-width: var(--fc-graph-ring-width);
+    stroke-dasharray: var(--fc-graph-ring-dash);
+    pointer-events: none;
+  }
+  .fc-graph-node-focus {
+    fill: none;
+    stroke: none;
+    stroke-width: var(--fc-component-graph-focus-width);
+    pointer-events: none;
+  }
+  .fc-graph-node-selected .fc-graph-node-focus { stroke: var(--fc-component-graph-focus-ring); }
+  .fc-graph-node:focus-visible .fc-graph-node-focus {
+    stroke: var(--fc-component-graph-focus-ring);
+    stroke-dasharray: var(--fc-component-graph-focus-dash);
+  }
+  .fc-graph-node-selected .fc-graph-node-shape,
+  .fc-graph-node:focus-visible .fc-graph-node-shape {
+    stroke-width: var(--fc-component-graph-node-outline-width-active);
+  }
+
+  /* labels: mono apparatus voice with a paper knockout (paint-order), never a box */
+  .fc-graph-label {
+    font-family: var(--fc-component-graph-label-font-family);
+    font-size: var(--fc-component-graph-label-font-size);
+    font-weight: var(--fc-component-graph-label-font-weight);
+    fill: var(--fc-component-graph-label-text);
+    stroke: var(--fc-component-graph-label-halo);
+    stroke-width: var(--fc-component-graph-label-halo-width);
+    stroke-linejoin: round;
+    paint-order: stroke fill;
+    text-anchor: middle;
+    dominant-baseline: hanging;
+    pointer-events: none;
+  }
+  .fc-graph-label-muted { fill: var(--fc-component-graph-label-muted); }
+  .fc-graph-node-selected .fc-graph-label,
+  .fc-graph-node:focus-visible .fc-graph-label {
+    font-weight: var(--fc-component-graph-label-font-weight-active);
+  }
+
+  /* channel: series (categorical fill) */
+  .fc-graph-series-1 { --fc-graph-fill: var(--fc-component-graph-series-1); }
+  .fc-graph-series-2 { --fc-graph-fill: var(--fc-component-graph-series-2); }
+  .fc-graph-series-3 { --fc-graph-fill: var(--fc-component-graph-series-3); }
+  .fc-graph-series-4 { --fc-graph-fill: var(--fc-component-graph-series-4); }
+  .fc-graph-series-5 { --fc-graph-fill: var(--fc-component-graph-series-5); }
+  .fc-graph-series-6 { --fc-graph-fill: var(--fc-component-graph-series-6); }
+
+  /* channel: texture (pattern over the fill; open = hollow, series-coloured outline) */
+  .fc-graph-texture-solid .fc-graph-node-texture { fill: none; }
+  .fc-graph-texture-hatch .fc-graph-node-texture { fill: url(#fc-graph-texture-hatch); }
+  .fc-graph-texture-crosshatch .fc-graph-node-texture { fill: url(#fc-graph-texture-crosshatch); }
+  .fc-graph-texture-dots .fc-graph-node-texture { fill: url(#fc-graph-texture-dots); }
+  .fc-graph-texture-open .fc-graph-node-shape {
+    fill: var(--fc-component-graph-node-fill-open);
+    stroke: var(--fc-graph-fill, var(--fc-component-graph-node-outline));
+    stroke-width: var(--fc-component-graph-node-outline-width-active);
+  }
+  .fc-graph-texture-line {
+    fill: none;
+    stroke: var(--fc-component-graph-texture-ink);
+    stroke-width: var(--fc-component-graph-texture-stroke-width);
+  }
+  .fc-graph-texture-dot {
+    r: var(--fc-component-graph-texture-dot-radius);
+    fill: var(--fc-component-graph-texture-ink);
+    stroke: none;
+  }
+
+  /* channel: size (radius) */
+  .fc-graph-size-sm { --fc-graph-r: var(--fc-component-graph-node-radius-sm); }
+  .fc-graph-size-md { --fc-graph-r: var(--fc-component-graph-node-radius-md); }
+  .fc-graph-size-lg { --fc-graph-r: var(--fc-component-graph-node-radius-lg); }
+
+  /* channel: proximity (outer ring) */
+  .fc-graph-proximity-past {
+    --fc-graph-ring: var(--fc-component-graph-proximity-past-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-past-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-past-dash);
+  }
+  .fc-graph-proximity-now {
+    --fc-graph-ring: var(--fc-component-graph-proximity-now-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-now-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-now-dash);
+  }
+  .fc-graph-proximity-near {
+    --fc-graph-ring: var(--fc-component-graph-proximity-near-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-near-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-near-dash);
+  }
+  .fc-graph-proximity-far {
+    --fc-graph-ring: var(--fc-component-graph-proximity-far-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-far-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-far-dash);
+  }
+  .fc-graph-proximity-none {
+    --fc-graph-ring: var(--fc-component-graph-proximity-none-color);
+    --fc-graph-ring-width: var(--fc-component-graph-proximity-none-width);
+    --fc-graph-ring-dash: var(--fc-component-graph-proximity-none-dash);
+  }
+
+  /* legend (HTML) — glyphs are small inline SVGs using the same node classes */
+  .fc-graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fc-component-graph-legend-gap) var(--fc-space-5);
+    font-family: var(--fc-component-graph-label-font-family);
+    font-size: var(--fc-component-graph-label-font-size);
+    line-height: var(--fc-font-line-height-caption);
+    color: var(--fc-component-graph-label-text);
+  }
+  .fc-graph-legend-title {
+    font-weight: var(--fc-font-weight-semibold);
+    letter-spacing: var(--fc-font-tracking-label);
+    text-transform: uppercase;
+    color: var(--fc-component-graph-label-muted);
+  }
+  .fc-graph-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fc-component-graph-legend-gap);
+  }
+  .fc-graph-glyph {
+    flex: none;
+    width: var(--fc-component-graph-legend-glyph-size);
+    height: var(--fc-component-graph-legend-glyph-size);
+    overflow: visible;
+  }
+  .fc-graph-glyph .fc-graph-node { cursor: default; }
+  .fc-graph-swatch {
+    flex: none;
+    display: inline-block;
+    width: var(--fc-component-graph-legend-swatch-size);
+    height: var(--fc-component-graph-legend-swatch-size);
+    background-color: var(--fc-graph-fill, var(--fc-component-graph-node-fill));
+    border: var(--fc-border-width-hairline) solid var(--fc-component-graph-node-outline);
+  }
 }
 
 /* Reduced motion: collapse all transitions. */

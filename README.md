@@ -28,6 +28,7 @@ honors `prefers-color-scheme`).
 | `docs/principles.md` | 1 — Design principles |
 | `docs/guidelines.md` | 2 — Design guidelines: sizes, fonts, rhythm, radii, weights, colors, element specs |
 | `docs/tokens.md` + `tokens/foolscap.tokens.json` | 3 — Token taxonomy, W3C DTCG format, 3-tier (component → semantic → primitive) per Curtis/Eightshapes |
+| `docs/graph.md` | Graph pattern: `.fc-graph*` classes, `component.graph.*` tokens, `foolscap-graph.js` geometry |
 | `dist/foolscap.vars.css` + `dist/foolscap.theme.css` | 4 — Generated CSS custom properties + Tailwind v4 `@theme` |
 | `site/` | 5 — Blog + styleguide demo webapp |
 
@@ -46,6 +47,8 @@ honors `prefers-color-scheme`).
 3. Dark mode: set `data-theme="dark"` on `<html>`.
 4. Charts: include `foolscap-plot.js` and render with `fcChart(el, tokens => spec)`
    (Observable Plot; re-themes live on mode switch).
+5. Node-link graphs: include `site/assets/foolscap-graph.js` (no dependencies) and
+   compose `.fc-graph*` classes — see `docs/graph.md`.
 
 Only edit `tokens/foolscap.tokens.json`; everything in `dist/` is generated.
 
@@ -53,7 +56,8 @@ Only edit `tokens/foolscap.tokens.json`; everything in `dist/` is generated.
 
 ```bash
 npm run tokens     # rebuild dist/*.css from the DTCG source
-npm run contrast   # WCAG audit of token pairs (34 checks, both modes; CI-fail on AA miss)
+npm run contrast   # WCAG audit of token pairs (both modes; CI-fail on AA / 3:1 graphics miss)
+npm test           # token/class contract tests (node:test; rebuilds dist first)
 npm run css        # Tailwind build for the site
 npm run build      # tokens + contrast + css
 npm run serve      # python http.server on :8000

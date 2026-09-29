@@ -48,9 +48,11 @@ VALUE       #26453F
 - **Semantic (system) tokens** — `color.surface|text|action|border|emphasis|feedback|chart.*`,
   `size.measure-*`, `size.control-height`, `shadow.plate*`, `typography.*`. They name
   *purposes* and are the primary vocabulary for application code and the Tailwind theme.
-- **Component tokens** — `component.button|chip|pane|input|table|mark.*`. Defined only
+- **Component tokens** — `component.button|chip|pane|input|table|mark|graph.*`. Defined only
   where a component needs a decision that the semantic tier doesn't already state
   (e.g. `chip.selected-background`). Every value is an alias of a semantic token.
+  `component.graph.*` (see `docs/graph.md`) also carries geometry — node radii, ring
+  widths, dashes, hit radius — aliased to `space.*`, `border.width.*`, `border.dash.*`.
 
 ## Aliasing
 
@@ -79,6 +81,11 @@ through their semantic references.
 fontWeight, lineHeight, letterSpacing) for the four recurring voices: `masthead`,
 `headline`, `prose`, `label`. The build explodes composites into per-property custom
 properties (`--fc-typography-label-font-size`, …).
+
+`border.dash.*` uses the DTCG `strokeStyle` object form
+(`{ "dashArray": [...], "lineCap": "butt" }`) and is emitted as an SVG
+`stroke-dasharray` list (`0.1875rem 0.125rem`), or `none` for an empty array.
+String `strokeStyle` values (`border.style.*`) still emit as CSS keywords.
 
 ## Emission targets
 

@@ -64,6 +64,8 @@ function serialize(path, value) {
     }
     case "cubicBezier":
       return `cubic-bezier(${value.join(", ")})`;
+    case "strokeStyle":
+      return serializeStroke(value);
     case "typography":
       return null; // composites are exploded, not emitted directly
     default:
@@ -107,7 +109,15 @@ function serializeRaw(type, value) {
   if (type === "fontFamily") return value.map((f) => (/[ ]/.test(f) ? `"${f}"` : f)).join(", ");
   if (type === "shadow") return `${value.offsetX} ${value.offsetY} ${value.blur} ${value.spread} ${value.color}`;
   if (type === "cubicBezier") return `cubic-bezier(${value.join(", ")})`;
+  if (type === "strokeStyle") return serializeStroke(value);
   return String(value);
+}
+// DTCG strokeStyle: keyword strings pass through (border-style); object form
+// { dashArray, lineCap } emits an SVG stroke-dasharray list ("none" when empty).
+function serializeStroke(value) {
+  if (typeof value === "string") return value;
+  const dashes = value?.dashArray ?? [];
+  return dashes.length ? dashes.join(" ") : "none";
 }
 
 const banner = `/* Foolscap design tokens — generated from tokens/foolscap.tokens.json. Do not edit by hand. */\n`;

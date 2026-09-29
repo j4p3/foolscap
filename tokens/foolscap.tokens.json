@@ -148,7 +148,7 @@
       "1": { "$value": "{color.spruce.600}", "$extensions": { "fc.modes": { "dark": "{color.spruce.300}" } } },
       "2": { "$value": "{color.rust.500}", "$extensions": { "fc.modes": { "dark": "{color.rust.300}" } } },
       "3": { "$value": "{color.prussian.500}", "$extensions": { "fc.modes": { "dark": "{color.prussian.300}" } } },
-      "4": { "$value": "{color.ochre.500}", "$extensions": { "fc.modes": { "dark": "{color.ochre.300}" } } },
+      "4": { "$value": "{color.ochre.600}", "$description": "Ochre-600 on paper: ochre-500 measured 2.2:1 and failed the 3:1 graphics floor.", "$extensions": { "fc.modes": { "dark": "{color.ochre.300}" } } },
       "5": { "$value": "{color.olive.500}", "$extensions": { "fc.modes": { "dark": "{color.olive.300}" } } },
       "6": { "$value": "{color.gray.500}", "$extensions": { "fc.modes": { "dark": "{color.gray.300}" } } },
       "grid": { "$value": "#D9CEB4", "$description": "Graph-paper grid lines.", "$extensions": { "fc.modes": { "dark": "#1D3641" } } },
@@ -237,7 +237,8 @@
     "measure-prose":  { "$value": "42rem", "$description": "Single-column article measure (~66ch at prose size)." },
     "measure-wide":   { "$value": "64rem", "$description": "Figures, tables, wide panes." },
     "measure-page":   { "$value": "76rem", "$description": "Page shell max-width." },
-    "control-height": { "$value": "2.5rem", "$description": "Buttons, inputs (40px; 44px+ tap target with border)." }
+    "control-height": { "$value": "2.5rem", "$description": "Buttons, inputs (40px; 44px+ tap target with border)." },
+    "figure-min-height": { "$value": "28rem", "$description": "Minimum height of interactive figures (graphs, pannable plates) so they never collapse to a strip." }
   },
 
   "radius": {
@@ -255,7 +256,16 @@
       "$description": "PRIMITIVE. Rule weights.",
       "hairline": { "$value": "0.0625rem" },
       "rule":     { "$value": "0.09375rem", "$description": "1.5px — buttons, pane frames." },
+      "bold":     { "$value": "0.125rem", "$description": "2px — between rule and heavy; ordinal stroke steps in figures." },
       "heavy":    { "$value": "0.1875rem", "$description": "3px — masthead bars, emphatic rules." }
+    },
+    "dash": {
+      "$type": "strokeStyle",
+      "$description": "PRIMITIVE. SVG stroke dash patterns (DTCG strokeStyle objects; emitted as stroke-dasharray lists, empty = none).",
+      "solid":  { "$value": { "dashArray": [], "lineCap": "butt" } },
+      "long":   { "$value": { "dashArray": ["0.375rem", "0.1875rem"], "lineCap": "butt" }, "$description": "6/3 — marquee, selection, focus." },
+      "short":  { "$value": { "dashArray": ["0.1875rem", "0.125rem"], "lineCap": "butt" }, "$description": "3/2 — leader lines, tentative links." },
+      "dotted": { "$value": { "dashArray": ["0.0625rem", "0.1875rem"], "lineCap": "butt" }, "$description": "1/3 — faint, far, provisional." }
     },
     "style": {
       "$type": "strokeStyle",
@@ -380,6 +390,111 @@
       "$type": "color",
       "background": { "$value": "{color.emphasis.highlight}" },
       "text": { "$value": "{color.emphasis.highlight-ink}" }
+    },
+    "graph": {
+      "$description": "Node-link figure: labelled point marks on a graph-paper plate. Generic channels — series (categorical fill), texture (fill pattern), size (radius), shape (silhouette), proximity (outer ring colour + width + dash, ordinal past→now→near→far→none).",
+      "background": { "$type": "color", "$value": "{color.surface.raised}" },
+      "border":     { "$type": "color", "$value": "{color.border.hairline}" },
+      "canvas": {
+        "min-height": { "$type": "dimension", "$value": "{size.figure-min-height}" }
+      },
+      "grid": {
+        "line":       { "$type": "color", "$value": "{color.chart.grid}" },
+        "line-major": { "$type": "color", "$value": "{color.border.hairline}" },
+        "size":       { "$type": "dimension", "$value": "{space.5}", "$description": "Minor graph-paper cell (24px)." },
+        "size-major": { "$type": "dimension", "$value": "{space.11}", "$description": "Major cell = 4 minor (96px)." }
+      },
+      "node": {
+        "fill":       { "$type": "color", "$value": "{color.surface.sunken}", "$description": "Fill when no series is assigned." },
+        "fill-open":  { "$type": "color", "$value": "{color.surface.raised}", "$description": "Hollow (texture-open) interior." },
+        "outline":    { "$type": "color", "$value": "{color.border.strong}" },
+        "outline-width":        { "$type": "dimension", "$value": "{border.width.hairline}" },
+        "outline-width-active": { "$type": "dimension", "$value": "{border.width.bold}" },
+        "opacity-dimmed": { "$type": "number", "$value": 0.35 },
+        "radius-sm":  { "$type": "dimension", "$value": "{space.2}", "$description": "8px — light weight." },
+        "radius-md":  { "$type": "dimension", "$value": "{space.3}", "$description": "12px — default weight." },
+        "radius-lg":  { "$type": "dimension", "$value": "{space.4}", "$description": "16px — heavy weight." },
+        "hit-radius": { "$type": "dimension", "$value": "{space.5}", "$description": "24px invisible hit disc (48px target) regardless of drawn size." }
+      },
+      "focus": {
+        "ring":   { "$type": "color", "$value": "{color.border.strong}" },
+        "width":  { "$type": "dimension", "$value": "{border.width.bold}" },
+        "offset": { "$type": "dimension", "$value": "{space.1}", "$description": "Paper gap between the proximity ring's outer edge and the focus/selection ring." },
+        "dash":   { "$type": "strokeStyle", "$value": "{border.dash.long}" }
+      },
+      "label": {
+        "text":  { "$type": "color", "$value": "{color.text.primary}" },
+        "muted": { "$type": "color", "$value": "{color.text.muted}" },
+        "halo":  { "$type": "color", "$value": "{color.surface.raised}", "$description": "Paint-order knockout behind label text; matches graph background." },
+        "halo-width": { "$type": "dimension", "$value": "{border.width.heavy}" },
+        "gap":   { "$type": "dimension", "$value": "{space.1}", "$description": "Label offset from the outermost ring." },
+        "font-family": { "$type": "fontFamily", "$value": "{font.family.data}" },
+        "font-size":   { "$type": "dimension", "$value": "{font.size.caption}" },
+        "font-weight": { "$type": "fontWeight", "$value": "{font.weight.medium}" },
+        "font-weight-active": { "$type": "fontWeight", "$value": "{font.weight.bold}" }
+      },
+      "edge": {
+        "line":           { "$type": "color", "$value": "{color.text.muted}" },
+        "line-emphasis":  { "$type": "color", "$value": "{color.border.strong}" },
+        "width":          { "$type": "dimension", "$value": "{border.width.hairline}" },
+        "width-emphasis": { "$type": "dimension", "$value": "{border.width.rule}" }
+      },
+      "dash": { "$type": "strokeStyle", "$value": "{border.dash.short}", "$description": "Tentative/soft edges." },
+      "series": {
+        "$type": "color",
+        "$description": "Categorical fill ramp; aliases the chart ramp so graphs and charts share a palette.",
+        "1": { "$value": "{color.chart.1}" },
+        "2": { "$value": "{color.chart.2}" },
+        "3": { "$value": "{color.chart.3}" },
+        "4": { "$value": "{color.chart.4}" },
+        "5": { "$value": "{color.chart.5}" },
+        "6": { "$value": "{color.chart.6}" }
+      },
+      "texture": {
+        "ink":          { "$type": "color", "$value": "{color.surface.raised}", "$description": "Pattern strokes drawn over the series fill (paper-on-ink in light, blueprint-on-chalk in dark)." },
+        "gap":          { "$type": "dimension", "$value": "{space.1}" },
+        "stroke-width": { "$type": "dimension", "$value": "{border.width.hairline}" },
+        "dot-radius":   { "$type": "dimension", "$value": "{border.width.hairline}" }
+      },
+      "halo": {
+        "gap": { "$type": "dimension", "$value": "{border.width.bold}", "$description": "Paper gap between node edge and proximity ring." }
+      },
+      "proximity": {
+        "$description": "Ordinal ring: colour + width + dash all step together so no state is colour-only.",
+        "past": {
+          "color": { "$type": "color", "$value": "{color.feedback.danger}" },
+          "width": { "$type": "dimension", "$value": "{border.width.heavy}" },
+          "dash":  { "$type": "strokeStyle", "$value": "{border.dash.solid}" }
+        },
+        "now": {
+          "color": { "$type": "color", "$value": "{color.feedback.warning}" },
+          "width": { "$type": "dimension", "$value": "{border.width.bold}" },
+          "dash":  { "$type": "strokeStyle", "$value": "{border.dash.solid}" }
+        },
+        "near": {
+          "color": { "$type": "color", "$value": "{color.feedback.info}" },
+          "width": { "$type": "dimension", "$value": "{border.width.rule}" },
+          "dash":  { "$type": "strokeStyle", "$value": "{border.dash.short}" }
+        },
+        "far": {
+          "color": { "$type": "color", "$value": "{color.text.muted}" },
+          "width": { "$type": "dimension", "$value": "{border.width.hairline}" },
+          "dash":  { "$type": "strokeStyle", "$value": "{border.dash.dotted}" }
+        },
+        "none": {
+          "color": { "$type": "color", "$value": "#00000000" },
+          "width": { "$type": "dimension", "$value": "{radius.none}" },
+          "dash":  { "$type": "strokeStyle", "$value": "{border.dash.solid}" }
+        }
+      },
+      "legend": {
+        "glyph-size":  { "$type": "dimension", "$value": "{space.7}", "$description": "32px glyph box fits a lg node + ring." },
+        "swatch-size": { "$type": "dimension", "$value": "{space.3}" },
+        "gap":         { "$type": "dimension", "$value": "{space.2}" }
+      },
+      "controls": {
+        "gap": { "$type": "dimension", "$value": "{space.1}" }
+      }
     }
   }
 }

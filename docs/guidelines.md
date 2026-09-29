@@ -179,6 +179,7 @@ Class names as implemented in `site/assets/foolscap.css` (all consume component 
 | Byline / dateline | `.fc-byline` | Caps-tracked Lora 14px, muted |
 | Rule between sections | `.fc-rule`, `.fc-rule-double`, `.fc-rule-dotted` | Full-measure hr variants |
 | Footnote | `.fc-footnote` | Small text, dotted top rule, mono superscript markers |
+| Graph (node-link) | `.fc-graph` + `.fc-graph-canvas`, `.fc-graph-node`, `.fc-graph-edge`, `.fc-graph-legend` | Labelled marks on a graph-paper plate; channels series/texture/size/shape/proximity. Full spec: `docs/graph.md` |
 
 ### States (all interactive elements)
 
@@ -195,7 +196,9 @@ the DOM at render time, so charts re-theme with mode switches):
 - Ground transparent (paper shows through); plot area may draw the graph-paper grid
   (`chart.grid` hairlines, both axes).
 - Axis/tick labels: Plex Mono 11–12px, `chart.axis` ink; axis titles mono caps.
-- Series colors `chart.1–6` in order; single series uses `chart.ink`.
+- Series colors `chart.1–6` in order; single series uses `chart.ink`. Every series
+  colour clears 3:1 against the pane in both modes (`chart.4` is ochre-600 in paper
+  mode for this reason).
 - Lines 1.5px; points ≤3px radius; bars hairline-stroked in ink, filled with series
   color at full opacity — no gradients, no rounded bars, no blur.
 - Direct-label series when ≤4 series; legend (mono caps) only above that.

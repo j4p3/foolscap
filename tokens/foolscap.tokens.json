@@ -85,6 +85,18 @@
       "700": { "$value": "#495028" }
     },
 
+    "ink": {
+      "$description": "PRIMITIVE. Graph inks: dark categorical inks for paper and pale counterparts for the blueprint ground. Graphite reuses the gray ramp.",
+      "forest":        { "$value": "#2E5E3E" },
+      "forest-pale":   { "$value": "#93C4A0" },
+      "blue":          { "$value": "#26497A" },
+      "blue-pale":     { "$value": "#9CB9E3" },
+      "oxblood":       { "$value": "#7C2B33" },
+      "oxblood-pale":  { "$value": "#E3A3A9" },
+      "umber":         { "$value": "#6A4524" },
+      "umber-pale":    { "$value": "#D6B48E" }
+    },
+
     "surface": {
       "$description": "SEMANTIC. Grounds and planes.",
       "page":    { "$value": "{color.cream.100}", "$description": "Default page ground.", "$extensions": { "fc.modes": { "dark": "{color.prussian.950}" } } },
@@ -228,7 +240,8 @@
     "9":  { "$value": "3.5rem", "$description": "Two prose baselines." },
     "10": { "$value": "4rem" },
     "11": { "$value": "6rem" },
-    "12": { "$value": "8rem" }
+    "12": { "$value": "8rem" },
+    "13": { "$value": "12rem", "$description": "Graph-paper major cell." }
   },
 
   "size": {
@@ -238,7 +251,11 @@
     "measure-wide":   { "$value": "64rem", "$description": "Figures, tables, wide panes." },
     "measure-page":   { "$value": "76rem", "$description": "Page shell max-width." },
     "control-height": { "$value": "2.5rem", "$description": "Buttons, inputs (40px; 44px+ tap target with border)." },
-    "figure-min-height": { "$value": "28rem", "$description": "Minimum height of interactive figures (graphs, pannable plates) so they never collapse to a strip." }
+    "figure-min-height": { "$value": "28rem", "$description": "Minimum height of interactive figures (graphs, pannable plates) so they never collapse to a strip." },
+    "touch-target": { "$value": "2.75rem", "$description": "44px minimum exposed pointer/touch target." },
+    "panel-width": { "$value": "22rem", "$description": "Floating detail panel over a figure." },
+    "panel-width-narrow": { "$value": "16rem", "$description": "Floating key / legend panel over a figure." },
+    "panel-max-height": { "$value": "24rem", "$description": "Tallest a floating key may grow before it scrolls." }
   },
 
   "radius": {
@@ -265,7 +282,8 @@
       "solid":  { "$value": { "dashArray": [], "lineCap": "butt" } },
       "long":   { "$value": { "dashArray": ["0.375rem", "0.1875rem"], "lineCap": "butt" }, "$description": "6/3 — marquee, selection, focus." },
       "short":  { "$value": { "dashArray": ["0.1875rem", "0.125rem"], "lineCap": "butt" }, "$description": "3/2 — leader lines, tentative links." },
-      "dotted": { "$value": { "dashArray": ["0.0625rem", "0.1875rem"], "lineCap": "butt" }, "$description": "1/3 — faint, far, provisional." }
+      "dotted": { "$value": { "dashArray": ["0.0625rem", "0.1875rem"], "lineCap": "butt" }, "$description": "1/3 — faint, far, provisional." },
+      "dash-dot": { "$value": { "dashArray": ["0.5rem", "0.1875rem", "0.0625rem", "0.1875rem"], "lineCap": "butt" }, "$description": "8/3/1/3 — summaries and aggregates (never a real single link)." }
     },
     "style": {
       "$type": "strokeStyle",
@@ -401,8 +419,9 @@
       "grid": {
         "line":       { "$type": "color", "$value": "{color.chart.grid}" },
         "line-major": { "$type": "color", "$value": "{color.border.hairline}" },
-        "size":       { "$type": "dimension", "$value": "{space.5}", "$description": "Minor graph-paper cell (24px)." },
-        "size-major": { "$type": "dimension", "$value": "{space.11}", "$description": "Major cell = 4 minor (96px)." }
+        "size":       { "$type": "dimension", "$value": "{space.8}", "$description": "Minor graph-paper cell (3rem, 48px). Background paper only, not a placement lattice." },
+        "size-major": { "$type": "dimension", "$value": "{space.13}", "$description": "Major cell = 4 minor (12rem, 192px)." },
+        "minor-min-scale": { "$type": "number", "$value": 0.6, "$description": "Unitless view scale below which minor grid lines are hidden (fcGraph.minorGridVisible)." }
       },
       "node": {
         "fill":       { "$type": "color", "$value": "{color.chart.ink}", "$description": "Fill when no series is assigned: ink-bearing neutral so the mark and its texture clear 3:1." },
@@ -431,13 +450,15 @@
         "font-family": { "$type": "fontFamily", "$value": "{font.family.data}" },
         "font-size":   { "$type": "dimension", "$value": "{font.size.caption}" },
         "font-weight": { "$type": "fontWeight", "$value": "{font.weight.medium}" },
-        "font-weight-active": { "$type": "fontWeight", "$value": "{font.weight.bold}" }
+        "font-weight-active": { "$type": "fontWeight", "$value": "{font.weight.bold}" },
+        "line-height": { "$type": "dimension", "$value": "{font.line-height.caption}", "$description": "Line pitch of wrapped labels (measurement input for layout)." }
       },
       "edge": {
         "line":           { "$type": "color", "$value": "{color.text.muted}" },
         "line-emphasis":  { "$type": "color", "$value": "{color.border.strong}" },
         "width":          { "$type": "dimension", "$value": "{border.width.hairline}" },
-        "width-emphasis": { "$type": "dimension", "$value": "{border.width.rule}" }
+        "width-emphasis": { "$type": "dimension", "$value": "{border.width.rule}" },
+        "opacity-dimmed": { "$type": "number", "$value": 0.25, "$description": "Edges outside a focused stream. Decoration only; the edge table carries the data." }
       },
       "dash": { "$type": "strokeStyle", "$value": "{border.dash.short}", "$description": "Tentative/soft edges." },
       "series": {
@@ -486,6 +507,61 @@
           "width": { "$type": "dimension", "$value": "{radius.none}" },
           "dash":  { "$type": "strokeStyle", "$value": "{border.dash.solid}" }
         }
+      },
+      "ink": {
+        "$type": "color",
+        "$description": "Five fixed categorical ink slots plus a neutral No texture treatment. Slot ORDER is part of the visual contract (fc.palette.version); consuming apps own the category-to-slot mapping. Pale counterparts re-theme for the blueprint ground.",
+        "$extensions": { "fc.palette": { "version": 1, "slots": ["forest", "blue", "oxblood", "umber", "graphite"] } },
+        "1":    { "$value": "{color.ink.forest}",  "$description": "Slot 1 — forest green.", "$extensions": { "fc.modes": { "dark": "{color.ink.forest-pale}" } } },
+        "2":    { "$value": "{color.ink.blue}",    "$description": "Slot 2 — deep blue.", "$extensions": { "fc.modes": { "dark": "{color.ink.blue-pale}" } } },
+        "3":    { "$value": "{color.ink.oxblood}", "$description": "Slot 3 — oxblood.", "$extensions": { "fc.modes": { "dark": "{color.ink.oxblood-pale}" } } },
+        "4":    { "$value": "{color.ink.umber}",   "$description": "Slot 4 — umber.", "$extensions": { "fc.modes": { "dark": "{color.ink.umber-pale}" } } },
+        "5":    { "$value": "{color.gray.700}",    "$description": "Slot 5 — graphite.", "$extensions": { "fc.modes": { "dark": "{color.gray.200}" } } },
+        "none": { "$value": "{color.gray.400}",    "$description": "No texture: neutral mid-grey, lighter than graphite in paper mode and darker in blueprint mode; always paired with a dashed outline and the words 'No texture'.", "$extensions": { "fc.modes": { "dark": "{color.gray.400}" } } }
+      },
+      "objective": {
+        "$description": "Objective landmark: a bracketed title with no task glyph. Root vs nested is structure within the shown snapshot, never priority.",
+        "bracket":        { "$type": "color", "$value": "{color.border.strong}" },
+        "bracket-width":  { "$type": "dimension", "$value": "{border.width.rule}", "$description": "Selected objectives step up to border.width.heavy." },
+        "bracket-arm":    { "$type": "dimension", "$value": "{space.3}", "$description": "Corner arm length (clamped to half the box by fcGraph.bracketPath)." },
+        "padding-x":      { "$type": "dimension", "$value": "{space.2}" },
+        "padding-y":      { "$type": "dimension", "$value": "{space.1}" },
+        "font-size-root":     { "$type": "dimension", "$value": "{font.size.body}" },
+        "font-size-nested":   { "$type": "dimension", "$value": "{font.size.small}" },
+        "font-weight-root":   { "$type": "fontWeight", "$value": "{font.weight.bold}" },
+        "font-weight-nested": { "$type": "fontWeight", "$value": "{font.weight.semibold}" },
+        "caption":        { "$type": "color", "$value": "{color.text.muted}", "$description": "OBJECTIVE caption and progress text." }
+      },
+      "hit": {
+        "touch-min": { "$type": "dimension", "$value": "{size.touch-target}", "$description": "Minimum exposed touch target (44px)." }
+      },
+      "link": {
+        "handle-radius":  { "$type": "dimension", "$value": "{space.2}", "$description": "Drawn handle; its hit area still honours hit.touch-min." },
+        "preview-line":   { "$type": "color", "$value": "{color.border.strong}" },
+        "preview-dash":   { "$type": "strokeStyle", "$value": "{border.dash.long}" },
+        "target-valid":   { "$type": "color", "$value": "{color.feedback.success}" },
+        "target-invalid": { "$type": "color", "$value": "{color.feedback.danger}" }
+      },
+      "stream": {
+        "edge-width": { "$type": "dimension", "$value": "{border.width.bold}", "$description": "Edges inside a focused stream (heavier than edge.width-emphasis)." }
+      },
+      "aggregate": {
+        "dash": { "$type": "strokeStyle", "$value": "{border.dash.dash-dot}", "$description": "Summary edge standing for several canonical edges." }
+      },
+      "done": {
+        "mark": { "$type": "color", "$value": "{color.feedback.success}", "$description": "Check mark on completed context." }
+      },
+      "inset": {
+        "width":      { "$type": "dimension", "$value": "{size.panel-width}" },
+        "max-height": { "$type": "dimension", "$value": "{size.figure-min-height}", "$description": "Never taller than the smallest canvas; CSS also clamps to the figure." },
+        "offset":     { "$type": "dimension", "$value": "{space.3}", "$description": "Gap between floating panels and the canvas edge." },
+        "background": { "$type": "color", "$value": "{color.surface.raised}" },
+        "border":     { "$type": "color", "$value": "{color.border.strong}" },
+        "shadow":     { "$type": "shadow", "$value": "{shadow.plate-sm}", "$description": "Offset plate, no blur." }
+      },
+      "key": {
+        "width":      { "$type": "dimension", "$value": "{size.panel-width-narrow}" },
+        "max-height": { "$type": "dimension", "$value": "{size.panel-max-height}" }
       },
       "legend": {
         "glyph-size":  { "$type": "dimension", "$value": "{space.7}", "$description": "32px glyph box fits a lg node + ring." },

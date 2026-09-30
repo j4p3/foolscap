@@ -459,3 +459,98 @@ test("styleguide: specimen ships a table equivalent and single-pointer move cont
   assert.match(sg, /pz\.moveBy\(/);
   assert.doesNotMatch(sg, /G\.outerRadius\(m\.radius/, "stale outerRadius call");
 });
+
+// ---------- (8) graph v2 geometry: bracket primitive, grid, touch targets ----------
+const rem = (name) => parseFloat(lightVars.get(name)) * 16;
+
+test("metrics() resolves the v2 tokens (grid, touch target, bracket, label line height, link handle)", () => {
+  assert.equal(M.grid.size, 48, "3rem minor cell");
+  assert.equal(M.grid.major, 192, "12rem major cell");
+  assert.equal(M.grid.minorMinScale, 0.6);
+  assert.equal(M.touchMin, 44);
+  assert.equal(M.lineHeight, rem("--fc-component-graph-label-line-height"));
+  assert.equal(M.linkHandle, rem("--fc-component-graph-link-handle-radius"));
+  assert.deepEqual({ ...M.objective }, {
+    arm: rem("--fc-component-graph-objective-bracket-arm"),
+    width: rem("--fc-component-graph-objective-bracket-width"),
+    padX: rem("--fc-component-graph-objective-padding-x"),
+    padY: rem("--fc-component-graph-objective-padding-y"),
+  });
+});
+
+test("defs(): grid pattern tiles one 12rem major cell with 3 minor lines per axis", () => {
+  const d = G.defs(M);
+  assert.match(d, /<pattern id="fc-graph-grid" patternUnits="userSpaceOnUse" width="192" height="192">/);
+  const minor = /class="fc-graph-grid-line" d="([^"]*)"/.exec(d)[1];
+  assert.equal((minor.match(/M/g) || []).length, 6, "3 vertical + 3 horizontal minor lines");
+});
+
+test("minorGridVisible(k, m) hides minor lines below grid.minor-min-scale", () => {
+  assert.equal(G.minorGridVisible(1, M), true);
+  assert.equal(G.minorGridVisible(0.6, M), true, "threshold is inclusive");
+  assert.equal(G.minorGridVisible(0.59, M), false);
+  assert.equal(G.minorGridVisible(0.25, M), false);
+  for (const bad of [NaN, -1, 0, Infinity, "1"]) assert.equal(G.minorGridVisible(bad, M), false, `k=${String(bad)}`);
+});
+
+// Parse "M x y H x V y ..." polylines into subpaths of points.
+function subpaths(d) {
+  const tok = d.replace(/([MHVL])/g, " $1 ").trim().split(/\s+/);
+  const out = []; let cur = null, x = 0, y = 0;
+  for (let i = 0; i < tok.length; i++) {
+    const c = tok[i];
+    if (c === "M") { x = +tok[++i]; y = +tok[++i]; cur = [[x, y]]; out.push(cur); }
+    else if (c === "L") { x = +tok[++i]; y = +tok[++i]; cur.push([x, y]); }
+    else if (c === "H") { x = +tok[++i]; cur.push([x, y]); }
+    else if (c === "V") { y = +tok[++i]; cur.push([x, y]); }
+    else throw new Error(`unexpected path token ${c} in ${d}`);
+  }
+  return out;
+}
+
+test("bracketPath(w, h, m) draws four open corner brackets around a padded title box", () => {
+  const w = 120, h = 20;
+  const d = G.bracketPath(w, h, M);
+  assert.doesNotMatch(d, /Z/i, "brackets are open, never a closed card");
+  const parts = subpaths(d);
+  assert.equal(parts.length, 4, "one polyline per corner");
+  const X = w / 2 + M.objective.padX, Y = h / 2 + M.objective.padY;
+  const corners = parts.map((pts) => pts[1]);
+  assert.deepEqual(corners.map(([cx, cy]) => [Math.sign(cx), Math.sign(cy)]).sort(), [[-1, -1], [-1, 1], [1, -1], [1, 1]]);
+  for (const pts of parts) {
+    assert.equal(pts.length, 3, "arm, corner, arm");
+    const [a, c, b] = pts;
+    assert.deepEqual(c.map(Math.abs), [X, Y], "corner sits at padded box edge");
+    const arms = [Math.hypot(a[0] - c[0], a[1] - c[1]), Math.hypot(b[0] - c[0], b[1] - c[1])];
+    for (const len of arms) assert.ok(Math.abs(len - M.objective.arm) < 0.011, `arm ${len} != ${M.objective.arm}`);
+  }
+});
+
+test("bracketPath: arms never cross on short titles (clamped to half each side)", () => {
+  const d = G.bracketPath(2, 2, M);
+  for (const pts of subpaths(d)) {
+    const [a, c, b] = pts;
+    for (const p of [a, b]) {
+      assert.ok(Math.sign(p[0]) === Math.sign(c[0]) || p[0] === 0, `arm crosses the vertical centre: ${p}`);
+      assert.ok(Math.sign(p[1]) === Math.sign(c[1]) || p[1] === 0, `arm crosses the horizontal centre: ${p}`);
+    }
+  }
+});
+
+test("bracketPath: hostile sizes never emit NaN/Infinity and bad metrics throw", () => {
+  for (const [w, h] of [[NaN, 10], [10, Infinity], [-5, -5], ["x", null]]) {
+    const d = G.bracketPath(w, h, M);
+    assert.doesNotMatch(d, /NaN|Infinity/);
+    assert.equal(subpaths(d).length, 4);
+  }
+  const bad = Object.assign({}, M, { objective: Object.assign({}, M.objective, { arm: 0 }) });
+  assert.throws(() => G.bracketPath(10, 10, bad), { name: "RangeError" });
+});
+
+test("hitRadius(): exposed touch target never below hit.touch-min / 2", () => {
+  for (const { shape, size, prox } of cases) {
+    const r = G.hitRadius(shape, M.radius[size], prox, M);
+    assert.ok(r * 2 >= M.touchMin, `${shape}/${size}/${prox}: ${r * 2} < ${M.touchMin}`);
+    assert.ok(r >= G.outerRadius(shape, M.radius[size], prox, M), "covers the full focus ring");
+  }
+});

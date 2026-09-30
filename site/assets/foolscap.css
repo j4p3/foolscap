@@ -369,6 +369,7 @@
      Labelled point marks on a graph-paper plate. Five generic encoding
      channels, each a class family on .fc-graph-node (or legend glyphs):
        series-1..6   categorical fill        (--fc-graph-fill)
+       ink-1..5|none five fixed ink slots   (--fc-graph-fill; wins over series; app maps categories)
        texture-*     fill pattern            (SVG <pattern> ids from fcGraph.defs())
        size-sm|md|lg radius                  (--fc-graph-r; geometry via fcGraph.metrics())
        shape         silhouette              (path d from fcGraph.shapePath())
@@ -397,7 +398,8 @@
     outline: var(--fc-component-graph-focus-width) solid var(--fc-component-graph-focus-ring);
     outline-offset: calc(-1 * var(--fc-component-graph-focus-width));
   }
-  .fc-graph-panning { cursor: grabbing; }
+  .fc-graph-panning,
+  .fc-graph-canvas.is-grabbing { cursor: grabbing; }
   .fc-graph-viewport { transform-origin: 0 0; }
 
   .fc-graph-grid { fill: url(#fc-graph-grid); pointer-events: none; }
@@ -523,6 +525,19 @@
   .fc-graph-series-5 { --fc-graph-fill: var(--fc-component-graph-series-5); }
   .fc-graph-series-6 { --fc-graph-fill: var(--fc-component-graph-series-6); }
 
+  /* channel: ink (v2 colour channel; five fixed slots, versioned by fc.palette).
+     Declared after series so an ink class wins when both are present. Which
+     category lands in which slot is the consuming app's mapping, not the kit's. */
+  .fc-graph-ink-1 { --fc-graph-fill: var(--fc-component-graph-ink-1); }
+  .fc-graph-ink-2 { --fc-graph-fill: var(--fc-component-graph-ink-2); }
+  .fc-graph-ink-3 { --fc-graph-fill: var(--fc-component-graph-ink-3); }
+  .fc-graph-ink-4 { --fc-graph-fill: var(--fc-component-graph-ink-4); }
+  .fc-graph-ink-5 { --fc-graph-fill: var(--fc-component-graph-ink-5); }
+  .fc-graph-ink-none { --fc-graph-fill: var(--fc-component-graph-ink-none); }
+  /* No texture is told apart without colour: a dashed mark outline (short dash,
+     never the long focus dash) plus the words "No texture" in key and names. */
+  .fc-graph-ink-none .fc-graph-node-shape { stroke-dasharray: var(--fc-component-graph-dash); }
+
   /* channel: texture (pattern over the fill; open = hollow, series-coloured outline) */
   .fc-graph-texture-solid .fc-graph-node-texture { fill: none; }
   .fc-graph-texture-hatch .fc-graph-node-texture { fill: url(#fc-graph-texture-hatch); }
@@ -576,6 +591,121 @@
     --fc-graph-ring-dash: var(--fc-component-graph-proximity-none-dash);
   }
 
+  /* ---- v2 interaction states ---- */
+
+  /* hit: glyph and title share one selectable region. Pointer on the mark and
+     its title; the title joins hit testing only here (plain labels stay inert). */
+  .fc-graph-hit { cursor: pointer; }
+  .fc-graph-hit .fc-graph-label { pointer-events: auto; }
+  .fc-graph-hit.fc-graph-node-dragging,
+  .fc-graph-panning .fc-graph-hit,
+  .fc-graph-canvas.is-grabbing .fc-graph-hit { cursor: grabbing; }
+
+  /* linking: handle, provisional line, target verdicts (width/dash differ, not only hue) */
+  .fc-graph-link-handle {
+    fill: var(--fc-component-graph-background);
+    stroke: var(--fc-component-graph-link-preview-line);
+    stroke-width: var(--fc-border-width-rule);
+    cursor: crosshair;
+    pointer-events: all;
+  }
+  .fc-graph-link-preview {
+    fill: none;
+    stroke: var(--fc-component-graph-link-preview-line);
+    stroke-width: var(--fc-component-graph-edge-width-emphasis);
+    stroke-dasharray: var(--fc-component-graph-link-preview-dash);
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+  .fc-graph-target-valid .fc-graph-node-focus {
+    stroke: var(--fc-component-graph-link-target-valid);
+    stroke-width: var(--fc-border-width-heavy);
+    stroke-dasharray: none;
+  }
+  .fc-graph-target-invalid { cursor: not-allowed; }
+  .fc-graph-target-invalid .fc-graph-node-focus {
+    stroke: var(--fc-component-graph-link-target-invalid);
+    stroke-dasharray: var(--fc-component-graph-dash);
+  }
+
+  /* focus stream and generic dimming. Only decoration fades (edges, fills,
+     textures, rings, brackets); labels and focus rings stay at full contrast,
+     so dimmed data must also be in names or the text equivalent. */
+  .fc-graph-edge.fc-graph-stream {
+    stroke: var(--fc-component-graph-edge-line-emphasis);
+    stroke-width: var(--fc-component-graph-stream-edge-width);
+  }
+  .fc-graph-edge.fc-graph-dimmed { stroke-opacity: var(--fc-component-graph-edge-opacity-dimmed); }
+  .fc-graph-dimmed .fc-graph-node-shape { fill-opacity: var(--fc-component-graph-node-opacity-dimmed); }
+  .fc-graph-dimmed .fc-graph-node-texture,
+  .fc-graph-dimmed .fc-graph-node-halo { opacity: var(--fc-component-graph-node-opacity-dimmed); }
+  .fc-graph-dimmed .fc-graph-objective-bracket { stroke-opacity: var(--fc-component-graph-node-opacity-dimmed); }
+
+  /* aggregate (summary) edges: dash-dot, distinct from the tentative short dash */
+  .fc-graph-edge-aggregate { stroke-dasharray: var(--fc-component-graph-aggregate-dash); }
+
+  /* completed context: a check mark (shape, not only colour) and a muted title */
+  .fc-graph-done .fc-graph-label { fill: var(--fc-component-graph-label-muted); }
+  .fc-graph-done-mark {
+    fill: none;
+    stroke: var(--fc-component-graph-done-mark);
+    stroke-width: var(--fc-border-width-bold);
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    pointer-events: none;
+  }
+
+  /* objective: bracketed title landmark, no task glyph. Root/nested is
+     structure within the shown graph, never priority. */
+  .fc-graph-objective { outline: none; }
+  .fc-graph-objective-bracket {
+    fill: none;
+    stroke: var(--fc-component-graph-objective-bracket);
+    stroke-width: var(--fc-component-graph-objective-bracket-width);
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    pointer-events: none;
+  }
+  .fc-graph-objective .fc-graph-label { dominant-baseline: central; }
+  .fc-graph-objective-root .fc-graph-label {
+    font-size: var(--fc-component-graph-objective-font-size-root);
+    font-weight: var(--fc-component-graph-objective-font-weight-root);
+  }
+  .fc-graph-objective-nested .fc-graph-label {
+    font-size: var(--fc-component-graph-objective-font-size-nested);
+    font-weight: var(--fc-component-graph-objective-font-weight-nested);
+  }
+  .fc-graph-objective-caption {
+    font-family: var(--fc-component-graph-label-font-family);
+    font-size: var(--fc-component-graph-label-font-size);
+    font-weight: var(--fc-font-weight-semibold);
+    letter-spacing: var(--fc-font-tracking-label);
+    text-transform: uppercase;
+    fill: var(--fc-component-graph-objective-caption);
+    stroke: var(--fc-component-graph-label-halo);
+    stroke-width: var(--fc-component-graph-label-halo-width);
+    stroke-linejoin: round;
+    paint-order: stroke fill;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  .fc-graph-objective.fc-graph-node-selected .fc-graph-objective-bracket,
+  .fc-graph-objective:focus-visible .fc-graph-objective-bracket {
+    stroke-width: var(--fc-border-width-heavy);
+  }
+  .fc-graph-objective:focus-visible .fc-graph-objective-bracket {
+    stroke: var(--fc-component-graph-focus-ring);
+    stroke-dasharray: var(--fc-component-graph-focus-dash);
+  }
+  .fc-graph-target-valid .fc-graph-objective-bracket {
+    stroke: var(--fc-component-graph-link-target-valid);
+    stroke-width: var(--fc-border-width-heavy);
+  }
+  .fc-graph-target-invalid .fc-graph-objective-bracket {
+    stroke: var(--fc-component-graph-link-target-invalid);
+    stroke-dasharray: var(--fc-component-graph-dash);
+  }
+
   /* legend (HTML) — glyphs are small inline SVGs using the same node classes */
   .fc-graph-legend {
     display: flex;
@@ -605,6 +735,11 @@
     overflow: visible;
   }
   .fc-graph-glyph .fc-graph-node { cursor: default; }
+  /* Legend glyphs are pictures, never controls, even if a hit class slips in. */
+  .fc-graph-glyph,
+  .fc-graph-glyph * { pointer-events: none; }
+  .fc-graph-glyph .fc-graph-hit,
+  .fc-graph-glyph .fc-graph-hit * { pointer-events: none; cursor: default; }
   .fc-graph-swatch {
     flex: none;
     display: inline-block;
@@ -612,6 +747,82 @@
     height: var(--fc-component-graph-legend-swatch-size);
     background-color: var(--fc-graph-fill, var(--fc-component-graph-node-fill));
     border: var(--fc-border-width-hairline) solid var(--fc-component-graph-node-outline);
+  }
+
+  /* ---------- graph panels (HTML floating over .fc-graph) ----------
+     Toolbar, collapsible key, inset detail (desktop) and bounded sheet (phone).
+     The app chooses inset vs sheet; panels never reserve layout space. */
+  .fc-graph-toolbar {
+    position: absolute;
+    top: var(--fc-component-graph-inset-offset);
+    left: var(--fc-component-graph-inset-offset);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fc-component-graph-controls-gap);
+    max-width: calc(100% - 2 * var(--fc-component-graph-inset-offset));
+    padding: var(--fc-space-1);
+    background-color: var(--fc-component-graph-inset-background);
+    border: var(--fc-border-width-hairline) solid var(--fc-component-graph-inset-border);
+  }
+  .fc-graph-inset,
+  .fc-graph-sheet {
+    position: absolute;
+    overflow: auto;
+    padding: var(--fc-space-4);
+    background-color: var(--fc-component-graph-inset-background);
+    border: var(--fc-border-width-rule) solid var(--fc-component-graph-inset-border);
+    color: var(--fc-component-graph-label-text);
+    font-family: var(--fc-font-family-text);
+    font-size: var(--fc-font-size-small);
+    line-height: var(--fc-font-line-height-small);
+  }
+  .fc-graph-inset {
+    top: var(--fc-component-graph-inset-offset);
+    right: var(--fc-component-graph-inset-offset);
+    width: min(var(--fc-component-graph-inset-width), calc(100% - 2 * var(--fc-component-graph-inset-offset)));
+    max-height: min(var(--fc-component-graph-inset-max-height), calc(100% - 2 * var(--fc-component-graph-inset-offset)));
+    box-shadow: var(--fc-component-graph-inset-shadow);
+  }
+  .fc-graph-sheet {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    max-height: min(var(--fc-component-graph-inset-max-height), 50%);
+    border-width: var(--fc-border-width-rule) 0 0;
+  }
+  .fc-graph-key {
+    position: absolute;
+    bottom: var(--fc-component-graph-inset-offset);
+    left: var(--fc-component-graph-inset-offset);
+    width: min(var(--fc-component-graph-key-width), calc(100% - 2 * var(--fc-component-graph-inset-offset)));
+    max-height: min(var(--fc-component-graph-key-max-height), calc(100% - 2 * var(--fc-component-graph-inset-offset)));
+    overflow: auto;
+    padding: var(--fc-space-3);
+    background-color: var(--fc-component-graph-inset-background);
+    border: var(--fc-border-width-hairline) solid var(--fc-component-graph-inset-border);
+  }
+  .fc-graph-key .fc-graph-legend { flex-direction: column; align-items: flex-start; }
+  .fc-graph-key-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fc-space-2);
+    min-width: var(--fc-component-graph-hit-touch-min);
+    min-height: var(--fc-component-graph-hit-touch-min);
+    padding-inline: var(--fc-space-3);
+    font-family: var(--fc-component-graph-label-font-family);
+    font-size: var(--fc-component-graph-label-font-size);
+    font-weight: var(--fc-font-weight-semibold);
+    letter-spacing: var(--fc-font-tracking-label);
+    text-transform: uppercase;
+    color: var(--fc-component-graph-label-text);
+    background-color: var(--fc-component-graph-inset-background);
+    border: var(--fc-border-width-rule) solid var(--fc-component-graph-inset-border);
+    cursor: pointer;
+  }
+  .fc-graph-key-toggle:focus-visible {
+    outline: var(--fc-component-graph-focus-width) solid var(--fc-component-graph-focus-ring);
+    outline-offset: var(--fc-component-graph-focus-offset);
   }
 }
 

@@ -14,6 +14,10 @@
  *   fcGraph.node(opts, m)           -> <g class="fc-graph-node ..."> markup; channel values
  *                                      are validated, attrs limited to aria-* data-* role tabindex
  *   fcGraph.trimEdge(a, b, ra, rb)  -> edge endpoints clipped to node rings
+ *   fcGraph.hitRadius(shape, r, prox, m) -> hit disc radius: covers the focus ring and
+ *                                      never exposes less than hit.touch-min across
+ *   fcGraph.bracketPath(w, h, m)    -> four open corner brackets around a w x h title box
+ *   fcGraph.minorGridVisible(k, m)  -> false below grid.minor-min-scale (hide minor lines)
  *   fcGraph.panZoom(svg, viewport, opts) -> pan/zoom, node drag + keyboard move,
  *                                      Enter/Space activation; {zoomBy, reset, panBy, moveBy, state}
  */
@@ -92,8 +96,17 @@
       labelGap: px("label-gap"),
       labelSize: px("label-font-size"),
       texture: { gap: px("texture-gap"), stroke: px("texture-stroke-width"), dot: px("texture-dot-radius") },
-      grid: { size: px("grid-size"), major: px("grid-size-major") },
+      grid: { size: px("grid-size"), major: px("grid-size-major"), minorMinScale: px("grid-minor-min-scale") },
       glyph: px("legend-glyph-size"),
+      touchMin: px("hit-touch-min"),
+      lineHeight: px("label-line-height"),
+      linkHandle: px("link-handle-radius"),
+      objective: {
+        arm: px("objective-bracket-arm"),
+        width: px("objective-bracket-width"),
+        padX: px("objective-padding-x"),
+        padY: px("objective-padding-y"),
+      },
     };
   }
 
@@ -111,6 +124,34 @@
   }
   // Lowest point of the focus ring stroke (labels hang below it).
   const outerBottom = (shape, r, prox, m) => bottom(shape, focusRadius(r, prox, m)) + (BOTTOM_MITER[shape] * m.focusWidth) / 2;
+
+  const len = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : 0; };
+
+  // Exposed hit disc: the whole focus ring, the legacy hit radius, and at least
+  // half the touch minimum (44px across) whatever the drawn size.
+  const hitRadius = (shape, r, prox, m) =>
+    Math.max(len(m.hit), len(m.touchMin) / 2, outerRadius(shape, r, prox, m) + 0.01);
+
+  /* Objective landmark: four open corners around a w x h title box, inset by the
+     objective padding. Arms are clamped to half the box so short titles never
+     cross; hostile sizes collapse to 0. Open subpaths only, never a closed card. */
+  function bracketPath(w, h, m) {
+    const o = (m && m.objective) || {};
+    const arm = Number(o.arm);
+    if (!Number.isFinite(arm) || arm <= 0) throw new RangeError("fcGraph.bracketPath: objective.arm must be a positive finite number");
+    const X = len(w) / 2 + len(o.padX), Y = len(h) / 2 + len(o.padY);
+    const ax = Math.min(arm, X), ay = Math.min(arm, Y);
+    return [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+      .map(([sx, sy]) => `M${f(sx * (X - ax)) || 0} ${f(sy * Y) || 0} H${f(sx * X) || 0} V${f(sy * (Y - ay)) || 0}`)
+      .join(" ");
+  }
+
+  // Minor graph-paper lines turn to noise when zoomed out; hide them below the token scale.
+  function minorGridVisible(k, m) {
+    if (typeof k !== "number" || !Number.isFinite(k) || k <= 0) return false;
+    const min = Number(m && m.grid && m.grid.minorMinScale);
+    return k >= (Number.isFinite(min) ? min : 0);
+  }
 
   function defs(m) {
     const t = m.texture;
@@ -145,7 +186,6 @@
   const pick = (list, v, dflt) => (list.includes(v) ? v : dflt);
   const pickSeries = (v) => { const n = Number(v); return v !== "" && v != null && SERIES.includes(n) ? n : null; };
   const coord = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
-  const len = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : 0; };
   // Caller attrs land on an SVG <g>: semantics/data only. No on*, href, style,
   // class or presentation attributes — those are the helper's to own.
   const ATTR_NAME = /^(?:aria-[a-z]+(?:-[a-z]+)*|data-[a-z0-9]+(?:-[a-z0-9]+)*|role|tabindex)$/;
@@ -161,7 +201,7 @@
     const series = pickSeries(o.series);
     const r = Number(m.radius[size]);
     if (!Number.isFinite(r) || r <= 0) throw new RangeError(`fcGraph.node: radius.${size} must be a positive finite number`);
-    const g = { haloGap: len(m.haloGap), ring: { [prox]: len(m.ring[prox]) }, focusOffset: len(m.focusOffset), focusWidth: len(m.focusWidth) };
+    const g = { hit: m.hit, touchMin: m.touchMin, haloGap: len(m.haloGap), ring: { [prox]: len(m.ring[prox]) }, focusOffset: len(m.focusOffset), focusWidth: len(m.focusWidth) };
     const ringR = ringRadius(r, prox, g);
     const focusR = focusRadius(r, prox, g);
     const labelY = f(outerBottom(shape, r, prox, g) + len(m.labelGap));
@@ -182,7 +222,7 @@
     const extra = [...attrs].map(([k, val]) => ` ${k}="${esc(val)}"`).join("");
     return (
       `<g class="${cls.join(" ")}" transform="translate(${f(coord(o.x))} ${f(coord(o.y))})"${extra}>` +
-      `<circle class="fc-graph-node-hit" r="${f(Math.max(len(m.hit), outerRadius(shape, r, prox, g) + 0.01))}"/>` +
+      `<circle class="fc-graph-node-hit" r="${f(hitRadius(shape, r, prox, g))}"/>` +
       `<path class="fc-graph-node-halo" d="${shapePath(shape, ringR)}"/>` +
       `<path class="fc-graph-node-shape" d="${d}"/>` +
       `<path class="fc-graph-node-texture" d="${d}"/>` +
@@ -309,5 +349,5 @@
     return { zoomBy: zoomCentre, reset, panBy, moveBy, get state() { return { k, tx, ty }; } };
   }
 
-  root.fcGraph = { SHAPES, TEXTURES, PROXIMITY, SIZES, SERIES, shapePath, extent, bottom, metrics, ringRadius, outerRadius, defs, node, trimEdge, panZoom };
+  root.fcGraph = { SHAPES, TEXTURES, PROXIMITY, SIZES, SERIES, shapePath, extent, bottom, metrics, ringRadius, outerRadius, hitRadius, bracketPath, minorGridVisible, defs, node, trimEdge, panZoom };
 })(typeof window !== "undefined" ? window : globalThis);

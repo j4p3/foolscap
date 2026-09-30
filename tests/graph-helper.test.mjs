@@ -554,3 +554,37 @@ test("hitRadius(): exposed touch target never below hit.touch-min / 2", () => {
     assert.ok(r >= G.outerRadius(shape, M.radius[size], prox, M), "covers the full focus ring");
   }
 });
+
+// Controlling cases (TG-04 recovery A2): with the real token metrics every other
+// bound already exceeds touch-min / 2, so the check above cannot tell whether the
+// touch-min branch exists. These fresh metrics make each bound decide in turn.
+const tinyMetrics = (extra = {}) => Object.assign({}, M, {
+  hit: 1, touchMin: 44, radius: Object.assign({}, M.radius, { sm: 1 }), haloGap: 0,
+  ring: Object.assign({}, M.ring, { none: 0 }), focusOffset: 0, focusWidth: 0,
+}, extra);
+const renderedHit = (html) => +/class="fc-graph-node-hit" r="([^"]+)"/.exec(html)[1];
+
+test("hitRadius(): touch-min controls when legacy hit and outer geometry are both smaller", () => {
+  const m = tinyMetrics();
+  const outer = G.outerRadius("circle", 1, "none", m);
+  assert.equal(outer, 1, "premise: zero-gap circle's outer radius is its radius");
+  assert.ok(m.hit < m.touchMin / 2, "premise: legacy hit radius is below touch-min / 2");
+  assert.ok(outer + 0.01 < m.touchMin / 2, "premise: outer geometry is below touch-min / 2");
+  assert.equal(G.hitRadius("circle", 1, "none", m), 22);
+  assert.equal(M.hit === 1, false, "fresh metrics: shared M untouched");
+});
+
+test("node(): rendered hit disc honours touch-min through the real caller", () => {
+  const m = tinyMetrics();
+  assert.equal(renderedHit(G.node({ shape: "circle", size: "sm", proximity: "none" }, m)), 22);
+});
+
+test("hitRadius(): without touch-min the legacy max(hit, outer + 0.01) rule decides", () => {
+  const noTouch = tinyMetrics({ touchMin: undefined });
+  assert.equal(G.hitRadius("circle", 1, "none", noTouch), 1.01, "outer geometry controls");
+  assert.equal(renderedHit(G.node({ shape: "circle", size: "sm", proximity: "none" }, noTouch)), 1.01);
+  const hitWins = tinyMetrics({ touchMin: undefined, hit: 9 });
+  assert.equal(G.hitRadius("circle", 1, "none", hitWins), 9, "legacy hit controls");
+  const outerWins = tinyMetrics({ touchMin: 44, radius: Object.assign({}, M.radius, { sm: 30 }) });
+  assert.equal(G.hitRadius("circle", 30, "none", outerWins), 30.01, "outer geometry controls above touch-min / 2");
+});

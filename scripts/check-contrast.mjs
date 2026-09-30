@@ -79,6 +79,26 @@ const pairs = [
     [`component.graph.series.${i}`, "component.graph.background", 3, `graph series ${i}`],
     ["component.graph.texture.ink", `component.graph.series.${i}`, 3, `graph texture on series ${i}`],
   ]),
+  // Graph v2 vocabulary (inks, objective, link targets, panels). The graph
+  // focus ring on the plate is already audited above ("graph focus ring").
+  ...[1, 2, 3, 4, 5].flatMap((i) => [
+    [`component.graph.ink.${i}`, "component.graph.background", 3, `graph ink ${i}`],
+    ["component.graph.texture.ink", `component.graph.ink.${i}`, 3, `graph texture on ink ${i}`],
+  ]),
+  ["component.graph.ink.none", "component.graph.background", 3, "graph ink none (No texture)"],
+  ["component.graph.texture.ink", "component.graph.ink.none", 3, "graph texture on ink none"],
+  ["component.graph.objective.bracket", "component.graph.background", 3, "graph objective bracket"],
+  ["component.graph.objective.caption", "component.graph.background", 4.5, "graph objective caption"],
+  ["component.graph.link.preview-line", "component.graph.background", 3, "graph link preview"],
+  ["component.graph.link.target-valid", "component.graph.background", 3, "graph link target valid"],
+  ["component.graph.link.target-invalid", "component.graph.background", 3, "graph link target invalid"],
+  ["component.graph.edge.line-emphasis", "component.graph.background", 3, "graph edge emphasis / stream"],
+  ["component.graph.done.mark", "component.graph.background", 3, "graph done mark"],
+  ["component.graph.label.text", "component.graph.inset.background", 4.5, "graph label on inset"],
+  ["component.graph.label.muted", "component.graph.inset.background", 4.5, "graph label muted on inset"],
+  ["component.graph.inset.border", "color.surface.page", 3, "graph inset border on page"],
+  ["component.graph.inset.border", "component.graph.background", 3, "graph inset border on plate"],
+  ["component.graph.focus.ring", "component.graph.inset.background", 3, "graph focus ring on inset"],
 ];
 
 let fail = 0;
@@ -90,7 +110,8 @@ for (const mode of ["light", "dark"]) {
     const r = ratio(f, b);
     const ok = r >= min;
     if (!ok) fail++;
-    console.log(`${ok ? "  ok " : "FAIL "} ${r.toFixed(2).padStart(5)} >= ${min}  ${note}  (${f} on ${b})`);
+    // The trailing [foreground | background] token paths identify the audited pair.
+    console.log(`${ok ? "  ok " : "FAIL "} ${r.toFixed(2).padStart(5)} >= ${min}  ${note}  (${f} on ${b})  [${fg} | ${bg}]`);
   }
 }
 process.exit(fail ? 1 : 0);

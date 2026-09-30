@@ -617,15 +617,30 @@
     vector-effect: non-scaling-stroke;
     pointer-events: none;
   }
-  .fc-graph-target-valid .fc-graph-node-focus {
+  /* Link-target verdicts (valid: heavy solid ring; invalid: short dash +
+     not-allowed). Selectors name the host class so a verdict outranks
+     selection, and the :focus-visible forms outrank the ordinary keyboard-focus
+     ring, so a focused target keeps its verdict. Keyboard focus stays visible
+     through a separate outline on the target group (below). */
+  .fc-graph-target-valid .fc-graph-node-focus,
+  .fc-graph-node.fc-graph-target-valid .fc-graph-node-focus,
+  .fc-graph-node.fc-graph-target-valid:focus-visible .fc-graph-node-focus {
     stroke: var(--fc-component-graph-link-target-valid);
     stroke-width: var(--fc-border-width-heavy);
     stroke-dasharray: none;
   }
-  .fc-graph-target-invalid { cursor: not-allowed; }
-  .fc-graph-target-invalid .fc-graph-node-focus {
+  .fc-graph-target-invalid,
+  .fc-graph-hit.fc-graph-target-invalid { cursor: not-allowed; }
+  .fc-graph-target-invalid .fc-graph-node-focus,
+  .fc-graph-node.fc-graph-target-invalid .fc-graph-node-focus,
+  .fc-graph-node.fc-graph-target-invalid:focus-visible .fc-graph-node-focus {
     stroke: var(--fc-component-graph-link-target-invalid);
     stroke-dasharray: var(--fc-component-graph-dash);
+  }
+  .fc-graph-target-valid:focus-visible,
+  .fc-graph-target-invalid:focus-visible {
+    outline: var(--fc-component-graph-focus-width) solid var(--fc-component-graph-focus-ring);
+    outline-offset: var(--fc-component-graph-focus-offset);
   }
 
   /* focus stream and generic dimming. Only decoration fades (edges, fills,
@@ -697,13 +712,23 @@
     stroke: var(--fc-component-graph-focus-ring);
     stroke-dasharray: var(--fc-component-graph-focus-dash);
   }
-  .fc-graph-target-valid .fc-graph-objective-bracket {
+  /* Objective verdicts mirror the glyph ring: valid is an explicitly solid heavy
+     bracket, invalid the short dash; focused forms outrank the focus long dash. */
+  .fc-graph-target-valid .fc-graph-objective-bracket,
+  .fc-graph-objective.fc-graph-target-valid .fc-graph-objective-bracket,
+  .fc-graph-objective.fc-graph-target-valid:focus-visible .fc-graph-objective-bracket {
     stroke: var(--fc-component-graph-link-target-valid);
     stroke-width: var(--fc-border-width-heavy);
+    stroke-dasharray: none;
   }
-  .fc-graph-target-invalid .fc-graph-objective-bracket {
+  /* Butt caps: square caps add half the stroke width to each dash end, so a
+     heavy (selected/focused) invalid bracket would close the short gap. */
+  .fc-graph-target-invalid .fc-graph-objective-bracket,
+  .fc-graph-objective.fc-graph-target-invalid .fc-graph-objective-bracket,
+  .fc-graph-objective.fc-graph-target-invalid:focus-visible .fc-graph-objective-bracket {
     stroke: var(--fc-component-graph-link-target-invalid);
     stroke-dasharray: var(--fc-component-graph-dash);
+    stroke-linecap: butt;
   }
 
   /* legend (HTML) — glyphs are small inline SVGs using the same node classes */

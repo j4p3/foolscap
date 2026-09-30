@@ -4,8 +4,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -321,30 +322,33 @@ test("v2: each ink has an explicit dark counterpart and all six treatments diffe
   }
 });
 
+const V2_BG = "component.graph.background";
+const V2_INSET = "component.graph.inset.background";
+// [foreground, background, minimum] — the v2 graph contrast contract.
+const V2_CONTRAST_PAIRS = [
+  ...INKS.flatMap((i) => [
+    [`component.graph.ink.${i}`, V2_BG, 3],
+    ["component.graph.texture.ink", `component.graph.ink.${i}`, 3],
+  ]),
+  ["component.graph.ink.none", V2_BG, 3],
+  ["component.graph.texture.ink", "component.graph.ink.none", 3],
+  ["component.graph.objective.bracket", V2_BG, 3],
+  ["component.graph.objective.caption", V2_BG, 4.5],
+  ["component.graph.link.preview-line", V2_BG, 3],
+  ["component.graph.link.target-valid", V2_BG, 3],
+  ["component.graph.link.target-invalid", V2_BG, 3],
+  ["component.graph.edge.line-emphasis", V2_BG, 3],
+  ["component.graph.done.mark", V2_BG, 3],
+  ["component.graph.focus.ring", V2_BG, 3],
+  ["component.graph.label.text", V2_INSET, 4.5],
+  ["component.graph.label.muted", V2_INSET, 4.5],
+  ["component.graph.inset.border", "color.surface.page", 3],
+  ["component.graph.inset.border", V2_BG, 3],
+  ["component.graph.focus.ring", V2_INSET, 3],
+];
+
 test("v2: text >= 4.5:1 and important non-text >= 3:1 against the graph and inset planes, both themes", () => {
-  const BG = "component.graph.background";
-  const INSET = "component.graph.inset.background";
-  const pairs = [
-    ...INKS.flatMap((i) => [
-      [`component.graph.ink.${i}`, BG, 3],
-      ["component.graph.texture.ink", `component.graph.ink.${i}`, 3],
-    ]),
-    ["component.graph.ink.none", BG, 3],
-    ["component.graph.texture.ink", "component.graph.ink.none", 3],
-    ["component.graph.objective.bracket", BG, 3],
-    ["component.graph.objective.caption", BG, 4.5],
-    ["component.graph.link.preview-line", BG, 3],
-    ["component.graph.link.target-valid", BG, 3],
-    ["component.graph.link.target-invalid", BG, 3],
-    ["component.graph.edge.line-emphasis", BG, 3],
-    ["component.graph.done.mark", BG, 3],
-    ["component.graph.focus.ring", BG, 3],
-    ["component.graph.label.text", INSET, 4.5],
-    ["component.graph.label.muted", INSET, 4.5],
-    ["component.graph.inset.border", "color.surface.page", 3],
-    ["component.graph.inset.border", BG, 3],
-    ["component.graph.focus.ring", INSET, 3],
-  ];
+  const pairs = V2_CONTRAST_PAIRS;
   const failures = [];
   for (const mode of ["light", "dark"]) {
     for (const [fg, bg, min] of pairs) {
@@ -353,6 +357,99 @@ test("v2: text >= 4.5:1 and important non-text >= 3:1 against the graph and inse
     }
   }
   assert.deepEqual(failures, []);
+});
+
+// ---- the build gate (scripts/check-contrast.mjs, run by `npm run build`) must
+// audit every v2 pair itself, not only this test file (TG-04 recovery A3). ----
+// Parse the real script's report: per mode, one entry per audited pair.
+function parseContrastReport(stdout) {
+  const out = { light: [], dark: [] };
+  let mode = null;
+  for (const line of stdout.split("\n")) {
+    const h = /^== (light|dark) ==$/.exec(line);
+    if (h) { mode = h[1]; continue; }
+    const m = /^(  ok |FAIL )\s*([\d.]+) >= ([\d.]+)\s+(.*?)\s+\[([^\]|]+?) \| ([^\]]+?)\]/.exec(line);
+    if (m && mode) out[mode].push({ ok: m[1].trim() === "ok", ratio: +m[2], min: +m[3], note: m[4], fg: m[5], bg: m[6] });
+  }
+  return out;
+}
+const runContrast = (dir) => spawnSync(process.execPath, [join(dir, "scripts/check-contrast.mjs")], { encoding: "utf8" });
+
+test("contrast script audits every v2 pair in both themes at the contract minimum", () => {
+  const r = runContrast(root);
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  const report = parseContrastReport(r.stdout);
+  const missing = [];
+  for (const mode of ["light", "dark"]) {
+    assert.ok(report[mode].length > 0, `${mode}: no parsable [fg | bg] audit lines`);
+    for (const [fg, bg, min] of V2_CONTRAST_PAIRS) {
+      const hit = report[mode].find((e) => e.fg === fg && e.bg === bg);
+      if (!hit) missing.push(`${mode}: ${fg} on ${bg}`);
+      else assert.ok(hit.min >= min, `${mode}: ${fg} on ${bg} audited at ${hit.min} < ${min}`);
+    }
+  }
+  assert.deepEqual(missing, [], `check-contrast.mjs does not audit: ${missing.join("; ")}`);
+  // Legacy thresholds are kept: text 4.5 (AAA 7 where it was), non-text 3.
+  const legacy = report.light.find((e) => e.fg === "component.graph.label.text" && e.bg === "component.graph.background");
+  assert.equal(legacy?.min, 4.5);
+  // No duplicate audit entries.
+  const keys = report.light.map((e) => `${e.fg}|${e.bg}`);
+  assert.equal(new Set(keys).size, keys.length, "duplicate pairs in the contrast audit");
+});
+
+// Real script, real token document, disposable copies: each low-contrast v2
+// mutation must make the gate exit non-zero with the intended pair/theme failing.
+function withContrastFixture(mutate, fn) {
+  const dir = mkdtempSync(join(tmpdir(), "fc-contrast-fixture-"));
+  try {
+    mkdirSync(join(dir, "scripts"));
+    mkdirSync(join(dir, "tokens"));
+    copyFileSync(join(root, "scripts/check-contrast.mjs"), join(dir, "scripts/check-contrast.mjs"));
+    const doc = JSON.parse(read("tokens/foolscap.tokens.json"));
+    mutate(doc);
+    writeFileSync(join(dir, "tokens/foolscap.tokens.json"), JSON.stringify(doc, null, 2));
+    return fn(runContrast(dir));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+const tokenNode = (doc, path) => path.split(".").reduce((n, k) => n[k], doc);
+const setLight = (path, hex) => (doc) => { tokenNode(doc, path).$value = hex; };
+const setDarkOnly = (path, hex) => (doc) => {
+  const n = tokenNode(doc, path);
+  n.$extensions = { ...(n.$extensions || {}), "fc.modes": { ...(n.$extensions?.["fc.modes"] || {}), dark: hex } };
+};
+
+test("contrast fixture control: an unmutated copy of the real tokens passes", () => {
+  withContrastFixture(() => {}, (r) => assert.equal(r.status, 0, r.stdout + r.stderr));
+});
+
+test("contrast script rejects low-contrast v2 tokens (light and dark-only mutations)", () => {
+  const lightBg = tokenValue(V2_BG, "light");
+  const darkBg = tokenValue(V2_BG, "dark");
+  const cases = [
+    { fg: "component.graph.ink.3", bg: V2_BG, mode: "light", mutate: setLight("component.graph.ink.3", lightBg) },
+    { fg: "component.graph.ink.2", bg: V2_BG, mode: "dark", mutate: setDarkOnly("component.graph.ink.2", darkBg) },
+    { fg: "component.graph.objective.caption", bg: V2_BG, mode: "dark", mutate: setDarkOnly("component.graph.objective.caption", darkBg) },
+    { fg: "component.graph.objective.caption", bg: V2_BG, mode: "light", mutate: setLight("component.graph.objective.caption", lightBg) },
+    { fg: "component.graph.link.target-valid", bg: V2_BG, mode: "light", mutate: setLight("component.graph.link.target-valid", lightBg) },
+    { fg: "component.graph.link.target-invalid", bg: V2_BG, mode: "dark", mutate: setDarkOnly("component.graph.link.target-invalid", darkBg) },
+  ];
+  for (const c of cases) {
+    withContrastFixture(c.mutate, (r) => {
+      const label = `${c.mode} ${c.fg}`;
+      assert.notEqual(r.status, 0, `${label}: gate must exit non-zero\n${r.stdout}`);
+      const report = parseContrastReport(r.stdout);
+      const hit = report[c.mode].find((e) => e.fg === c.fg && e.bg === c.bg);
+      assert.ok(hit, `${label}: pair not audited`);
+      assert.equal(hit.ok, false, `${label}: intended pair did not fail`);
+      const other = c.mode === "dark" ? "light" : null;
+      if (other) {
+        const same = report[other].find((e) => e.fg === c.fg && e.bg === c.bg);
+        assert.equal(same?.ok, true, `${label}: dark-only mutation must leave light passing`);
+      }
+    });
+  }
 });
 
 test("v2: graph grid is 3rem / 12rem and minor lines hide below scale 0.6", () => {
@@ -455,6 +552,84 @@ test("v2: link targets, selection, aggregate and stream differ without colour", 
   assert.equal(declared(rules, ".fc-graph-objective-bracket", "stroke"), "var(--fc-component-graph-objective-bracket)");
   assert.equal(declared(rules, ".fc-graph-objective-root .fc-graph-label", "font-size"), "var(--fc-component-graph-objective-font-size-root)");
   assert.equal(declared(rules, ".fc-graph-objective-nested .fc-graph-label", "font-size"), "var(--fc-component-graph-objective-font-size-nested)");
+  // Objective verdicts carry the same non-colour cue as glyph verdicts: valid is an
+  // explicitly solid bracket (never an inherited dash), invalid the short dash.
+  assert.equal(declared(rules, ".fc-graph-target-valid .fc-graph-objective-bracket", "stroke-dasharray"), "none", "valid objective target must reset to a solid bracket");
+  assert.equal(declared(rules, ".fc-graph-target-invalid .fc-graph-objective-bracket", "stroke-dasharray"), "var(--fc-component-graph-dash)");
+});
+
+// Link-target verdicts while the target also holds keyboard focus (TG-04 recovery A1).
+// The ordinary :focus-visible ring rules are more specific than a bare
+// `.fc-graph-target-* ring` rule, so a focused target used to lose its verdict.
+// Explicit graph-scoped focus+target selectors must restate the verdict, and a
+// separate tokenized outline on the target group keeps focus visible.
+const TARGET_KINDS = [
+  { name: "glyph", host: ".fc-graph-node", ring: ".fc-graph-node-focus", focus: ".fc-graph-node:focus-visible .fc-graph-node-focus", selected: ".fc-graph-node-selected .fc-graph-node-focus" },
+  { name: "objective", host: ".fc-graph-objective", ring: ".fc-graph-objective-bracket", focus: ".fc-graph-objective:focus-visible .fc-graph-objective-bracket", selected: ".fc-graph-objective.fc-graph-node-selected .fc-graph-objective-bracket" },
+];
+const VERDICTS = {
+  valid: { stroke: "var(--fc-component-graph-link-target-valid)", dash: "none", width: "var(--fc-border-width-heavy)" },
+  invalid: { stroke: "var(--fc-component-graph-link-target-invalid)", dash: "var(--fc-component-graph-dash)" },
+};
+const specificity = (sel) => (sel.match(/[.:][\w-]+/g) || []).length;
+
+test("v2: link-target verdicts hold for focused and unfocused, selected and unselected glyphs and objectives", () => {
+  const rules = rulesOf(graphCss());
+  for (const k of TARGET_KINDS) {
+    // Ordinary focus and selection treatments stay intact.
+    assert.equal(declared(rules, k.focus, "stroke"), "var(--fc-component-graph-focus-ring)", `${k.name}: ordinary focus ring`);
+    assert.equal(declared(rules, k.focus, "stroke-dasharray"), "var(--fc-component-graph-focus-dash)", `${k.name}: ordinary focus long dash`);
+    for (const [v, want] of Object.entries(VERDICTS)) {
+      const unfocused = `${k.host}.fc-graph-target-${v} ${k.ring}`;
+      const focused = `${k.host}.fc-graph-target-${v}:focus-visible ${k.ring}`;
+      for (const sel of [unfocused, focused]) {
+        assert.equal(declared(rules, sel, "stroke"), want.stroke, `${sel}: verdict stroke`);
+        assert.equal(declared(rules, sel, "stroke-dasharray"), want.dash, `${sel}: verdict dash`);
+        if (want.width) assert.equal(declared(rules, sel, "stroke-width"), want.width, `${sel}: valid heavy width`);
+      }
+      // Precedence by specificity (or equal specificity declared later), not source order alone.
+      const css = graphCss();
+      const outranks = (a, b) => specificity(a) > specificity(b) || (specificity(a) === specificity(b) && css.indexOf(a) > css.indexOf(b));
+      assert.ok(specificity(focused) > specificity(k.focus), `${focused} must outrank ${k.focus}`);
+      assert.ok(outranks(unfocused, k.selected), `${unfocused} must outrank ${k.selected}`);
+      assert.ok(outranks(focused, k.selected), `${focused} must outrank ${k.selected}`);
+    }
+    assert.notEqual(VERDICTS.valid.dash, VERDICTS.invalid.dash);
+  }
+  // Square caps extend each dash by half the stroke width at both ends, so a
+  // heavy (selected/focused) invalid bracket would close its short dash gap
+  // and read as solid. Invalid objective brackets use butt caps; every other
+  // bracket keeps the square-cornered base.
+  assert.equal(declared(rules, ".fc-graph-objective-bracket", "stroke-linecap"), "square", "base bracket cap");
+  assert.equal(declared(rules, ".fc-graph-objective-bracket", "stroke-linejoin"), "miter", "base bracket join");
+  for (const sel of [
+    ".fc-graph-target-invalid .fc-graph-objective-bracket",
+    ".fc-graph-objective.fc-graph-target-invalid .fc-graph-objective-bracket",
+    ".fc-graph-objective.fc-graph-target-invalid:focus-visible .fc-graph-objective-bracket",
+  ]) {
+    assert.equal(declared(rules, sel, "stroke-linecap"), "butt", `${sel}: invalid dash keeps its gap (butt cap)`);
+  }
+  // Invalid keeps not-allowed even on a .fc-graph-hit node (pointer would otherwise win by order).
+  assert.equal(declared(rules, ".fc-graph-target-invalid", "cursor"), "not-allowed");
+  assert.equal(declared(rules, ".fc-graph-hit.fc-graph-target-invalid", "cursor"), "not-allowed");
+});
+
+test("v2: a focused link target keeps a separate tokenized focus outline; ordinary focus styling unchanged", () => {
+  const rules = rulesOf(graphCss());
+  for (const v of Object.keys(VERDICTS)) {
+    const sel = `.fc-graph-target-${v}:focus-visible`;
+    assert.equal(declared(rules, sel, "outline"), "var(--fc-component-graph-focus-width) solid var(--fc-component-graph-focus-ring)", `${sel}: outline`);
+    assert.equal(declared(rules, sel, "outline-offset"), "var(--fc-component-graph-focus-offset)", `${sel}: outline offset`);
+    assert.ok(specificity(sel) > specificity(".fc-graph-node") && specificity(sel) > specificity(".fc-graph-objective"), `${sel} must outrank the outline:none resets`);
+  }
+  // Neutral nodes and objectives still draw focus with their own ring, not an outline.
+  assert.equal(declared(rules, ".fc-graph-node", "outline"), "none");
+  assert.equal(declared(rules, ".fc-graph-objective", "outline"), "none");
+  // The added outline is target-scoped only.
+  const outlined = rules.filter((r) => /(?:^|[;\s])outline\s*:\s*var/.test(r.body)).flatMap((r) => r.sel.split(",").map((s) => s.trim()));
+  for (const s of outlined) assert.match(s, /^\.fc-graph-(canvas|key-toggle|target-(valid|invalid)):focus-visible$/, `unexpected outline selector ${s}`);
+  // No blanket overrides and no focus removal in the graph block.
+  assert.doesNotMatch(graphCss(), /!important/);
 });
 
 test("v2: generic dim fades only decoration (edges, marks, brackets), never labels or focus", () => {

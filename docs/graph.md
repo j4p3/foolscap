@@ -201,7 +201,7 @@ an open vocabulary.
 | Objective (`.fc-graph-objective`) | bracketed title, no task glyph, larger type |
 | Selection (`.fc-graph-node-selected`) | solid focus ring + bold outline + bold label; keyboard focus adds the long dash |
 | Completed context (`.fc-graph-done`) | check-mark path (`.fc-graph-done-mark`) + muted title |
-| Link target valid / invalid | valid: heavy **solid** ring; invalid: short-**dashed** ring + `not-allowed` cursor |
+| Link target valid / invalid | valid: heavy **solid** ring/bracket; invalid: short-**dashed** ring/bracket + `not-allowed` cursor. Holds while focused or selected — see [Focused link targets](#focused-link-targets) |
 | Aggregate edge (`.fc-graph-edge-aggregate`) | dash-dot (`component.graph.aggregate.dash`), distinct from the tentative short dash |
 | Focused stream (`.fc-graph-stream`) | heavier edge (`stream.edge-width`); others dim via `.fc-graph-dimmed` |
 
@@ -239,6 +239,39 @@ All graph-scoped — no generic `button`, element or cursor reset.
 **Legend glyphs are never `.fc-graph-hit`.** `.fc-graph-glyph` and everything
 inside it get `pointer-events: none`, and a stray `.fc-graph-hit` inside a
 glyph keeps `cursor: default`.
+
+### Focused link targets
+
+A link target shows its verdict and keyboard focus **at the same time**, on
+glyphs (`.fc-graph-node-focus` ring) and on root/nested objectives
+(`.fc-graph-objective-bracket`), selected or not:
+
+- **Verdict stays on the ring/bracket.** `.fc-graph-target-valid` is the heavy
+  **solid** stroke in `link.target-valid`; `.fc-graph-target-invalid` is the
+  visibly **short-dashed** stroke (`component.graph.dash`) in
+  `link.target-invalid`. Graph-scoped `…target-*:focus-visible` selectors
+  outrank the ordinary focus and selection rules, so the long focus dash never
+  replaces a verdict.
+- **Focus moves to a separate outline.** `.fc-graph-target-valid:focus-visible`
+  and `.fc-graph-target-invalid:focus-visible` draw an outline on the target
+  group (`focus.width` solid `focus.ring`, offset `focus.offset`), so focus
+  remains visible without restyling the verdict stroke. Nothing else gets the
+  outline.
+- **Invalid objective brackets use butt caps.** The base bracket keeps square
+  caps and miter joins for crisp open corners. Square caps extend each dash by
+  half the stroke width at both ends, so on a heavy (selected or focused)
+  bracket they would close the short dash's gap and read as solid. Only the
+  invalid bracket switches to `stroke-linecap: butt`; the path, fill, width
+  and corners are unchanged.
+- **Ordinary focus and selection are unchanged.** Without a verdict class a
+  focused node or objective still draws the `focus.ring` long dash on its ring
+  or bracket and no outline; selection keeps its solid treatment (focus-ring
+  glyph ring, heavy objective bracket).
+  Removing a verdict while focused restores that ordinary focus styling.
+
+`npm run contrast` audits the link-target, focus-ring and other v2 pairs in
+both themes against the plate (text ≥ 4.5:1, marks ≥ 3:1) and fails the build
+on a miss.
 
 `component.graph.hit.touch-min` = 2.75rem (44px): `node()` now emits a hit disc
 of at least that diameter (`hitRadius`), and `.fc-graph-key-toggle` is at least

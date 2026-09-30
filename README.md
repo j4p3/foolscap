@@ -7,6 +7,30 @@ plate. No skeuomorphism.
 
 Demo: a personal blog ("The Foolscap Folio") plus a full specimen sheet.
 
+Live: **https://foolscap.castle.bonner.jp/** ·
+[Styleguide](https://foolscap.castle.bonner.jp/styleguide.html)
+
+## Castle deployment
+
+The built `site/` directory is served from `/mnt/data/foolscap` on Castle by
+its `foolscap` Compose service (read-only mount, no public container port).
+The existing Caddy gateway provides HTTPS and compression. Infrastructure
+configuration lives in the sibling `castle` repo under `stack/`.
+Route 53 hosts the `foolscap.castle.bonner.jp` A record → `167.99.147.192`
+(TTL 300 seconds).
+
+To publish updates from this repo:
+
+```bash
+npm ci --include=dev
+npm test && npm run build
+rsync -a --chmod=D755,F644 site/ deploy@100.102.40.51:/mnt/data/foolscap/
+curl --fail --head https://foolscap.castle.bonner.jp/
+```
+
+No container restart is needed for static content updates. Only `site/` is
+published; repository files, dependencies, and credentials stay off the web root.
+
 ## Run the demo
 
 ```bash

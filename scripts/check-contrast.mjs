@@ -94,6 +94,14 @@ const pairs = [
   ["component.graph.link.target-invalid", "component.graph.background", 3, "graph link target invalid"],
   ["component.graph.edge.line-emphasis", "component.graph.background", 3, "graph edge emphasis / stream"],
   ["component.graph.done.mark", "component.graph.background", 3, "graph done mark"],
+  // Completed check mark (non-text graphic, 3:1) against the glyph interior it
+  // is drawn on: done.mark-filled on every filled glyph (inks, No texture,
+  // legacy series, default fill); done.mark on the hollow texture-open interior.
+  ...[1, 2, 3, 4, 5].map((i) => ["component.graph.done.mark-filled", `component.graph.ink.${i}`, 3, `graph done mark on ink ${i}`]),
+  ["component.graph.done.mark-filled", "component.graph.ink.none", 3, "graph done mark on ink none"],
+  ...[1, 2, 3, 4, 5, 6].map((i) => ["component.graph.done.mark-filled", `component.graph.series.${i}`, 3, `graph done mark on series ${i}`]),
+  ["component.graph.done.mark-filled", "component.graph.node.fill", 3, "graph done mark on default fill"],
+  ["component.graph.done.mark", "component.graph.node.fill-open", 3, "graph done mark on open texture"],
   ["component.graph.label.text", "component.graph.inset.background", 4.5, "graph label on inset"],
   ["component.graph.label.muted", "component.graph.inset.background", 4.5, "graph label muted on inset"],
   ["component.graph.inset.border", "color.surface.page", 3, "graph inset border on page"],

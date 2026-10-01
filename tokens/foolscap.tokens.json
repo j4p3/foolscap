@@ -549,7 +549,8 @@
         "dash": { "$type": "strokeStyle", "$value": "{border.dash.dash-dot}", "$description": "Summary edge standing for several canonical edges." }
       },
       "done": {
-        "mark": { "$type": "color", "$value": "{color.feedback.success}", "$description": "Check mark on completed context." }
+        "mark": { "$type": "color", "$value": "{color.text.primary}", "$description": "Check mark on completed context where it sits on paper: the hollow texture-open interior (and the plate). Matches label.text, so it clears 3:1 on node.fill-open in both themes." },
+        "mark-filled": { "$type": "color", "$value": "{color.surface.raised}", "$description": "Check mark on a filled glyph (any ink, No texture, series or default fill): the plate/halo colour knocked out of the fill, like texture.ink. Never used on the hollow open texture, where it would vanish (1:1)." }
       },
       "inset": {
         "width":      { "$type": "dimension", "$value": "{size.panel-width}" },

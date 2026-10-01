@@ -60,7 +60,10 @@
     outline: 2px solid var(--fc-color-border-focus);
     outline-offset: 2px;
   }
-  .fc-btn:disabled {
+  /* Disabled: native :disabled and [aria-disabled="true"] (kept focusable so a
+     press can explain why) look the same — faint ink, hairline, no fill, no hover. */
+  .fc-btn:disabled,
+  .fc-btn[aria-disabled="true"] {
     color: var(--fc-color-text-faint);
     border-color: var(--fc-color-border-hairline);
     background: none;
@@ -73,7 +76,7 @@
     border-color: var(--fc-component-button-primary-border);
     color: var(--fc-component-button-primary-text);
   }
-  .fc-btn-primary:hover:not(:disabled) {
+  .fc-btn-primary:hover:not(:disabled, [aria-disabled="true"]) {
     background-color: var(--fc-component-button-primary-background-hover);
     border-color: var(--fc-component-button-primary-background-hover);
   }
@@ -83,7 +86,7 @@
     border-color: var(--fc-component-button-secondary-border);
     color: var(--fc-component-button-secondary-text);
   }
-  .fc-btn-secondary:hover:not(:disabled) {
+  .fc-btn-secondary:hover:not(:disabled, [aria-disabled="true"]) {
     background-color: var(--fc-color-action-secondary);
     color: var(--fc-color-action-on-primary);
   }
@@ -92,14 +95,14 @@
     border-color: transparent;
     color: var(--fc-component-button-ghost-text);
   }
-  .fc-btn-ghost:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 0.2em; }
+  .fc-btn-ghost:hover:not(:disabled, [aria-disabled="true"]) { text-decoration: underline; text-underline-offset: 0.2em; }
 
   .fc-btn-destructive {
     background-color: var(--fc-component-button-destructive-background);
     border-color: var(--fc-component-button-destructive-border);
     color: var(--fc-component-button-destructive-text);
   }
-  .fc-btn-destructive:hover:not(:disabled) {
+  .fc-btn-destructive:hover:not(:disabled, [aria-disabled="true"]) {
     background-color: var(--fc-component-button-destructive-background-hover);
     border-color: var(--fc-component-button-destructive-background-hover);
   }
@@ -659,16 +662,24 @@
   /* aggregate (summary) edges: dash-dot, distinct from the tentative short dash */
   .fc-graph-edge-aggregate { stroke-dasharray: var(--fc-component-graph-aggregate-dash); }
 
-  /* completed context: a check mark (shape, not only colour) and a muted title */
+  /* completed context: a check mark (shape, not only colour) and a muted title.
+     The mark is knocked out of a filled glyph in the plate/halo colour
+     (done.mark-filled); on the hollow open texture, where that colour would
+     vanish into the paper interior, and on a dimmed glyph, whose fill fades
+     towards the paper, it takes the label-text colour (done.mark).
+     Colour only: geometry and stroke width are the same in every state. */
   .fc-graph-done .fc-graph-label { fill: var(--fc-component-graph-label-muted); }
   .fc-graph-done-mark {
     fill: none;
-    stroke: var(--fc-component-graph-done-mark);
+    stroke: var(--fc-component-graph-done-mark-filled);
     stroke-width: var(--fc-border-width-bold);
     stroke-linecap: square;
     stroke-linejoin: miter;
     pointer-events: none;
   }
+  .fc-graph-texture-open .fc-graph-done-mark,
+  .fc-graph-dimmed .fc-graph-done-mark,
+  .fc-graph-node-dimmed .fc-graph-done-mark { stroke: var(--fc-component-graph-done-mark); }
 
   /* objective: bracketed title landmark, no task glyph. Root/nested is
      structure within the shown graph, never priority. */

@@ -29,7 +29,7 @@ decides most questions:
 This is a serif system in an age of grotesques. Type carries hierarchy before color,
 before weight of decoration, before iconography:
 
-- **Three voices, strictly cast.** A didone display face (Playfair Display) speaks in
+- **Three voices, strictly cast.** A soft heavy slab display face (Cooper BT Medium) speaks in
   headlines like a masthead. A workhorse text serif (Lora) carries prose and UI copy.
   A monospaced face (IBM Plex Mono) is the *schematic voice* — it annotates: labels,
   chips, buttons, captions, axes, dimensions. If it would be stenciled on a drawing,

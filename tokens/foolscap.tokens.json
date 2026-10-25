@@ -173,7 +173,7 @@
     "family": {
       "$type": "fontFamily",
       "$description": "PRIMITIVE. Three faces only.",
-      "display": { "$value": ["Playfair Display", "Georgia", "serif"], "$description": "Mastheads, headlines. High-contrast didone." },
+      "display": { "$value": ["Cooper BT", "Cooper Black", "Georgia", "serif"], "$description": "Mastheads, headlines. Soft heavy slab (Cooper BT Medium)." },
       "text":    { "$value": ["Lora", "Georgia", "serif"], "$description": "Body prose and UI text." },
       "data":    { "$value": ["IBM Plex Mono", "ui-monospace", "monospace"], "$description": "Labels, chips, buttons, axes, tables of figures — the schematic voice." }
     },
@@ -184,7 +184,7 @@
       "medium":   { "$value": 500 },
       "semibold": { "$value": 600 },
       "bold":     { "$value": 700 },
-      "black":    { "$value": 800, "$description": "Playfair Display only; mastheads." }
+      "black":    { "$value": 800, "$description": "Display face only; mastheads. Cooper BT ships one weight, so 500–800 render the same face." }
     },
     "size": {
       "$type": "dimension",

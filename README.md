@@ -59,7 +59,7 @@ honors `prefers-color-scheme`).
 ## Using the theme in another project
 
 1. Copy `dist/foolscap.vars.css`, `dist/foolscap.theme.css`,
-   `site/assets/foolscap.css` (component classes), `site/assets/fonts.css` + `site/assets/fonts/`.
+   `site/assets/foolscap.css` (component classes), `site/assets/fonts.css` + `site/assets/fonts/` (populate with `npm run fonts`; the display face Cooper BT is licensed and lives in `fonts/cooper-bt/`).
 2. In your Tailwind v4 entry CSS:
    ```css
    @import "tailwindcss";

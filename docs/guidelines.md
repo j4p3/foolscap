@@ -64,11 +64,11 @@ Dark ("blueprint") mode swaps grounds to `prussian-950/900/800` and inks to
 
 | Token | Face | Fallback | Role |
 |---|---|---|---|
-| `font.family.display` | Playfair Display | Georgia, serif | Mastheads, h1–h2, pull quotes |
+| `font.family.display` | Cooper BT Medium | Cooper Black, Georgia, serif | Mastheads, h1–h2, pull quotes |
 | `font.family.text` | Lora | Georgia, serif | Prose, UI copy, h3–h4 |
 | `font.family.data` | IBM Plex Mono | ui-monospace | Labels, chips, buttons, captions, axes, tables of figures, code |
 
-No other faces. Weights loaded: Lora 400/500/600/700 (+italics), Playfair 400–800
+No other faces. Weights loaded: Lora 400/500/600/700 (+italics), Cooper BT Medium (+italic), one weight mapped across 500–800
 (+italics), Plex Mono 400/500/600.
 
 ### 2.2 Scale
